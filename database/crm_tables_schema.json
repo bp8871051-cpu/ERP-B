@@ -1,0 +1,2367 @@
+{
+    "crm_contacts": [
+        {
+            "field": "id",
+            "type": "bigint(20) unsigned",
+            "null": "NO",
+            "key": "PRI",
+            "default": null
+        },
+        {
+            "field": "company_id",
+            "type": "bigint(20) unsigned",
+            "null": "NO",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "customer_id",
+            "type": "bigint(20) unsigned",
+            "null": "YES",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "first_name",
+            "type": "varchar(255)",
+            "null": "NO",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "last_name",
+            "type": "varchar(255)",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "company_name",
+            "type": "varchar(255)",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "job_title",
+            "type": "varchar(255)",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "email",
+            "type": "varchar(255)",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "secondary_email",
+            "type": "varchar(255)",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "phone",
+            "type": "varchar(255)",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "whatsapp",
+            "type": "varchar(255)",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "website",
+            "type": "varchar(255)",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "address",
+            "type": "text",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "city",
+            "type": "varchar(255)",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "state",
+            "type": "varchar(255)",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "country",
+            "type": "varchar(255)",
+            "null": "YES",
+            "key": "",
+            "default": "India"
+        },
+        {
+            "field": "postal_code",
+            "type": "varchar(255)",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "contact_type",
+            "type": "varchar(255)",
+            "null": "NO",
+            "key": "",
+            "default": "business"
+        },
+        {
+            "field": "lead_source_id",
+            "type": "bigint(20) unsigned",
+            "null": "YES",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "owner_id",
+            "type": "bigint(20) unsigned",
+            "null": "YES",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "tags",
+            "type": "longtext",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "notes",
+            "type": "text",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "status",
+            "type": "varchar(255)",
+            "null": "NO",
+            "key": "",
+            "default": "active"
+        },
+        {
+            "field": "last_contacted_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "created_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "updated_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "deleted_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        }
+    ],
+    "crm_leads": [
+        {
+            "field": "id",
+            "type": "bigint(20) unsigned",
+            "null": "NO",
+            "key": "PRI",
+            "default": null
+        },
+        {
+            "field": "company_id",
+            "type": "bigint(20) unsigned",
+            "null": "NO",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "contact_id",
+            "type": "bigint(20) unsigned",
+            "null": "YES",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "customer_id",
+            "type": "bigint(20) unsigned",
+            "null": "YES",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "name",
+            "type": "varchar(255)",
+            "null": "NO",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "company_name",
+            "type": "varchar(255)",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "email",
+            "type": "varchar(255)",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "phone",
+            "type": "varchar(255)",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "job_title",
+            "type": "varchar(255)",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "website",
+            "type": "varchar(255)",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "lead_source_id",
+            "type": "bigint(20) unsigned",
+            "null": "YES",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "campaign_id",
+            "type": "bigint(20) unsigned",
+            "null": "YES",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "owner_id",
+            "type": "bigint(20) unsigned",
+            "null": "YES",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "industry",
+            "type": "varchar(255)",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "company_size",
+            "type": "varchar(255)",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "budget",
+            "type": "decimal(15,2)",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "expected_value",
+            "type": "decimal(15,2)",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "expected_close_date",
+            "type": "date",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "score",
+            "type": "int(11)",
+            "null": "NO",
+            "key": "",
+            "default": "0"
+        },
+        {
+            "field": "score_category",
+            "type": "varchar(255)",
+            "null": "NO",
+            "key": "",
+            "default": "cold"
+        },
+        {
+            "field": "status",
+            "type": "varchar(255)",
+            "null": "NO",
+            "key": "",
+            "default": "new"
+        },
+        {
+            "field": "lost_reason",
+            "type": "varchar(255)",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "notes",
+            "type": "text",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "tags",
+            "type": "longtext",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "converted_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "converted_by",
+            "type": "bigint(20) unsigned",
+            "null": "YES",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "created_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "updated_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "deleted_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        }
+    ],
+    "crm_lead_sources": [
+        {
+            "field": "id",
+            "type": "bigint(20) unsigned",
+            "null": "NO",
+            "key": "PRI",
+            "default": null
+        },
+        {
+            "field": "company_id",
+            "type": "bigint(20) unsigned",
+            "null": "YES",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "name",
+            "type": "varchar(255)",
+            "null": "NO",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "code",
+            "type": "varchar(255)",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "is_active",
+            "type": "tinyint(1)",
+            "null": "NO",
+            "key": "",
+            "default": "1"
+        },
+        {
+            "field": "created_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "updated_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        }
+    ],
+    "crm_lead_scores": [
+        {
+            "field": "id",
+            "type": "bigint(20) unsigned",
+            "null": "NO",
+            "key": "PRI",
+            "default": null
+        },
+        {
+            "field": "lead_id",
+            "type": "bigint(20) unsigned",
+            "null": "NO",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "rule_name",
+            "type": "varchar(255)",
+            "null": "NO",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "points",
+            "type": "int(11)",
+            "null": "NO",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "description",
+            "type": "varchar(255)",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "evaluated_at",
+            "type": "timestamp",
+            "null": "NO",
+            "key": "",
+            "default": "current_timestamp()"
+        },
+        {
+            "field": "created_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "updated_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        }
+    ],
+    "crm_pipelines": [
+        {
+            "field": "id",
+            "type": "bigint(20) unsigned",
+            "null": "NO",
+            "key": "PRI",
+            "default": null
+        },
+        {
+            "field": "company_id",
+            "type": "bigint(20) unsigned",
+            "null": "NO",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "name",
+            "type": "varchar(255)",
+            "null": "NO",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "code",
+            "type": "varchar(255)",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "is_default",
+            "type": "tinyint(1)",
+            "null": "NO",
+            "key": "",
+            "default": "0"
+        },
+        {
+            "field": "status",
+            "type": "varchar(255)",
+            "null": "NO",
+            "key": "",
+            "default": "active"
+        },
+        {
+            "field": "created_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "updated_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "deleted_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        }
+    ],
+    "crm_pipeline_stages": [
+        {
+            "field": "id",
+            "type": "bigint(20) unsigned",
+            "null": "NO",
+            "key": "PRI",
+            "default": null
+        },
+        {
+            "field": "pipeline_id",
+            "type": "bigint(20) unsigned",
+            "null": "NO",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "name",
+            "type": "varchar(255)",
+            "null": "NO",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "stage_order",
+            "type": "int(11)",
+            "null": "NO",
+            "key": "",
+            "default": "1"
+        },
+        {
+            "field": "slug",
+            "type": "varchar(255)",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "order",
+            "type": "int(11)",
+            "null": "NO",
+            "key": "",
+            "default": "0"
+        },
+        {
+            "field": "probability",
+            "type": "int(11)",
+            "null": "NO",
+            "key": "",
+            "default": "10"
+        },
+        {
+            "field": "color",
+            "type": "varchar(255)",
+            "null": "NO",
+            "key": "",
+            "default": "#0F8B7A"
+        },
+        {
+            "field": "is_won",
+            "type": "tinyint(1)",
+            "null": "NO",
+            "key": "",
+            "default": "0"
+        },
+        {
+            "field": "is_lost",
+            "type": "tinyint(1)",
+            "null": "NO",
+            "key": "",
+            "default": "0"
+        },
+        {
+            "field": "created_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "updated_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        }
+    ],
+    "crm_deals": [
+        {
+            "field": "id",
+            "type": "bigint(20) unsigned",
+            "null": "NO",
+            "key": "PRI",
+            "default": null
+        },
+        {
+            "field": "company_id",
+            "type": "bigint(20) unsigned",
+            "null": "NO",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "customer_id",
+            "type": "bigint(20) unsigned",
+            "null": "YES",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "contact_id",
+            "type": "bigint(20) unsigned",
+            "null": "YES",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "lead_id",
+            "type": "bigint(20) unsigned",
+            "null": "YES",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "pipeline_id",
+            "type": "bigint(20) unsigned",
+            "null": "NO",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "stage_id",
+            "type": "bigint(20) unsigned",
+            "null": "NO",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "name",
+            "type": "varchar(255)",
+            "null": "NO",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "value",
+            "type": "decimal(15,2)",
+            "null": "NO",
+            "key": "",
+            "default": "0.00"
+        },
+        {
+            "field": "currency",
+            "type": "varchar(255)",
+            "null": "NO",
+            "key": "",
+            "default": "INR"
+        },
+        {
+            "field": "probability",
+            "type": "int(11)",
+            "null": "NO",
+            "key": "",
+            "default": "10"
+        },
+        {
+            "field": "expected_revenue",
+            "type": "decimal(15,2)",
+            "null": "NO",
+            "key": "",
+            "default": "0.00"
+        },
+        {
+            "field": "expected_close_date",
+            "type": "date",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "owner_id",
+            "type": "bigint(20) unsigned",
+            "null": "YES",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "status",
+            "type": "varchar(255)",
+            "null": "NO",
+            "key": "",
+            "default": "open"
+        },
+        {
+            "field": "lost_reason",
+            "type": "varchar(255)",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "won_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "lost_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "sales_order_id",
+            "type": "bigint(20) unsigned",
+            "null": "YES",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "notes",
+            "type": "text",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "created_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "updated_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "deleted_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        }
+    ],
+    "crm_deal_items": [
+        {
+            "field": "id",
+            "type": "bigint(20) unsigned",
+            "null": "NO",
+            "key": "PRI",
+            "default": null
+        },
+        {
+            "field": "deal_id",
+            "type": "bigint(20) unsigned",
+            "null": "NO",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "product_id",
+            "type": "bigint(20) unsigned",
+            "null": "YES",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "product_name",
+            "type": "varchar(255)",
+            "null": "NO",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "quantity",
+            "type": "decimal(12,2)",
+            "null": "NO",
+            "key": "",
+            "default": "1.00"
+        },
+        {
+            "field": "unit_price",
+            "type": "decimal(15,2)",
+            "null": "NO",
+            "key": "",
+            "default": "0.00"
+        },
+        {
+            "field": "discount",
+            "type": "decimal(15,2)",
+            "null": "NO",
+            "key": "",
+            "default": "0.00"
+        },
+        {
+            "field": "tax_rate",
+            "type": "decimal(5,2)",
+            "null": "NO",
+            "key": "",
+            "default": "0.00"
+        },
+        {
+            "field": "tax_amount",
+            "type": "decimal(15,2)",
+            "null": "NO",
+            "key": "",
+            "default": "0.00"
+        },
+        {
+            "field": "total",
+            "type": "decimal(15,2)",
+            "null": "NO",
+            "key": "",
+            "default": "0.00"
+        },
+        {
+            "field": "created_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "updated_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        }
+    ],
+    "crm_deal_stage_history": [
+        {
+            "field": "id",
+            "type": "bigint(20) unsigned",
+            "null": "NO",
+            "key": "PRI",
+            "default": null
+        },
+        {
+            "field": "deal_id",
+            "type": "bigint(20) unsigned",
+            "null": "NO",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "from_stage_id",
+            "type": "bigint(20) unsigned",
+            "null": "YES",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "to_stage_id",
+            "type": "bigint(20) unsigned",
+            "null": "NO",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "changed_by",
+            "type": "bigint(20) unsigned",
+            "null": "YES",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "notes",
+            "type": "varchar(255)",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "remarks",
+            "type": "text",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "created_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "updated_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        }
+    ],
+    "crm_campaigns": [
+        {
+            "field": "id",
+            "type": "bigint(20) unsigned",
+            "null": "NO",
+            "key": "PRI",
+            "default": null
+        },
+        {
+            "field": "company_id",
+            "type": "bigint(20) unsigned",
+            "null": "NO",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "name",
+            "type": "varchar(255)",
+            "null": "NO",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "type",
+            "type": "varchar(255)",
+            "null": "NO",
+            "key": "",
+            "default": "email"
+        },
+        {
+            "field": "description",
+            "type": "text",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "start_date",
+            "type": "date",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "end_date",
+            "type": "date",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "owner_id",
+            "type": "bigint(20) unsigned",
+            "null": "YES",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "budget",
+            "type": "decimal(15,2)",
+            "null": "NO",
+            "key": "",
+            "default": "0.00"
+        },
+        {
+            "field": "status",
+            "type": "varchar(255)",
+            "null": "NO",
+            "key": "",
+            "default": "draft"
+        },
+        {
+            "field": "target_audience",
+            "type": "longtext",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "total_audience",
+            "type": "int(11)",
+            "null": "NO",
+            "key": "",
+            "default": "0"
+        },
+        {
+            "field": "sent_count",
+            "type": "int(11)",
+            "null": "NO",
+            "key": "",
+            "default": "0"
+        },
+        {
+            "field": "delivered_count",
+            "type": "int(11)",
+            "null": "NO",
+            "key": "",
+            "default": "0"
+        },
+        {
+            "field": "opened_count",
+            "type": "int(11)",
+            "null": "NO",
+            "key": "",
+            "default": "0"
+        },
+        {
+            "field": "clicked_count",
+            "type": "int(11)",
+            "null": "NO",
+            "key": "",
+            "default": "0"
+        },
+        {
+            "field": "converted_count",
+            "type": "int(11)",
+            "null": "NO",
+            "key": "",
+            "default": "0"
+        },
+        {
+            "field": "revenue",
+            "type": "decimal(15,2)",
+            "null": "NO",
+            "key": "",
+            "default": "0.00"
+        },
+        {
+            "field": "cost",
+            "type": "decimal(15,2)",
+            "null": "NO",
+            "key": "",
+            "default": "0.00"
+        },
+        {
+            "field": "roi",
+            "type": "decimal(8,2)",
+            "null": "NO",
+            "key": "",
+            "default": "0.00"
+        },
+        {
+            "field": "created_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "updated_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "deleted_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        }
+    ],
+    "crm_campaign_audiences": [
+        {
+            "field": "id",
+            "type": "bigint(20) unsigned",
+            "null": "NO",
+            "key": "PRI",
+            "default": null
+        },
+        {
+            "field": "campaign_id",
+            "type": "bigint(20) unsigned",
+            "null": "NO",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "filter_criteria",
+            "type": "longtext",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "total_count",
+            "type": "int(11)",
+            "null": "NO",
+            "key": "",
+            "default": "0"
+        },
+        {
+            "field": "created_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "updated_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        }
+    ],
+    "crm_campaign_contacts": [
+        {
+            "field": "id",
+            "type": "bigint(20) unsigned",
+            "null": "NO",
+            "key": "PRI",
+            "default": null
+        },
+        {
+            "field": "campaign_id",
+            "type": "bigint(20) unsigned",
+            "null": "NO",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "contact_id",
+            "type": "bigint(20) unsigned",
+            "null": "YES",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "lead_id",
+            "type": "bigint(20) unsigned",
+            "null": "YES",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "customer_id",
+            "type": "bigint(20) unsigned",
+            "null": "YES",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "status",
+            "type": "varchar(255)",
+            "null": "NO",
+            "key": "",
+            "default": "pending"
+        },
+        {
+            "field": "sent_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "opened_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "clicked_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "created_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "updated_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        }
+    ],
+    "crm_campaign_events": [
+        {
+            "field": "id",
+            "type": "bigint(20) unsigned",
+            "null": "NO",
+            "key": "PRI",
+            "default": null
+        },
+        {
+            "field": "campaign_id",
+            "type": "bigint(20) unsigned",
+            "null": "NO",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "event_type",
+            "type": "varchar(255)",
+            "null": "NO",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "contact_id",
+            "type": "bigint(20) unsigned",
+            "null": "YES",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "lead_id",
+            "type": "bigint(20) unsigned",
+            "null": "YES",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "metadata",
+            "type": "longtext",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "created_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "updated_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        }
+    ],
+    "crm_feedback": [
+        {
+            "field": "id",
+            "type": "bigint(20) unsigned",
+            "null": "NO",
+            "key": "PRI",
+            "default": null
+        },
+        {
+            "field": "company_id",
+            "type": "bigint(20) unsigned",
+            "null": "NO",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "customer_id",
+            "type": "bigint(20) unsigned",
+            "null": "YES",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "contact_id",
+            "type": "bigint(20) unsigned",
+            "null": "YES",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "deal_id",
+            "type": "bigint(20) unsigned",
+            "null": "YES",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "rating",
+            "type": "int(11)",
+            "null": "NO",
+            "key": "",
+            "default": "5"
+        },
+        {
+            "field": "category",
+            "type": "varchar(255)",
+            "null": "NO",
+            "key": "",
+            "default": "service"
+        },
+        {
+            "field": "feedback_text",
+            "type": "text",
+            "null": "NO",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "status",
+            "type": "varchar(255)",
+            "null": "NO",
+            "key": "",
+            "default": "new"
+        },
+        {
+            "field": "assigned_to",
+            "type": "bigint(20) unsigned",
+            "null": "YES",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "resolution",
+            "type": "text",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "resolved_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "created_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "updated_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "deleted_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        }
+    ],
+    "crm_activities": [
+        {
+            "field": "id",
+            "type": "bigint(20) unsigned",
+            "null": "NO",
+            "key": "PRI",
+            "default": null
+        },
+        {
+            "field": "company_id",
+            "type": "bigint(20) unsigned",
+            "null": "NO",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "user_id",
+            "type": "bigint(20) unsigned",
+            "null": "NO",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "type",
+            "type": "varchar(255)",
+            "null": "NO",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "subject",
+            "type": "varchar(255)",
+            "null": "NO",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "description",
+            "type": "text",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "contact_id",
+            "type": "bigint(20) unsigned",
+            "null": "YES",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "lead_id",
+            "type": "bigint(20) unsigned",
+            "null": "YES",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "deal_id",
+            "type": "bigint(20) unsigned",
+            "null": "YES",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "customer_id",
+            "type": "bigint(20) unsigned",
+            "null": "YES",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "due_at",
+            "type": "datetime",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "completed_at",
+            "type": "datetime",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "status",
+            "type": "varchar(255)",
+            "null": "NO",
+            "key": "",
+            "default": "pending"
+        },
+        {
+            "field": "created_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "updated_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "deleted_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        }
+    ],
+    "crm_tasks": [
+        {
+            "field": "id",
+            "type": "bigint(20) unsigned",
+            "null": "NO",
+            "key": "PRI",
+            "default": null
+        },
+        {
+            "field": "company_id",
+            "type": "bigint(20) unsigned",
+            "null": "NO",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "title",
+            "type": "varchar(255)",
+            "null": "NO",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "description",
+            "type": "text",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "assigned_to",
+            "type": "bigint(20) unsigned",
+            "null": "YES",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "created_by",
+            "type": "bigint(20) unsigned",
+            "null": "NO",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "contact_id",
+            "type": "bigint(20) unsigned",
+            "null": "YES",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "lead_id",
+            "type": "bigint(20) unsigned",
+            "null": "YES",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "deal_id",
+            "type": "bigint(20) unsigned",
+            "null": "YES",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "customer_id",
+            "type": "bigint(20) unsigned",
+            "null": "YES",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "priority",
+            "type": "varchar(255)",
+            "null": "NO",
+            "key": "",
+            "default": "medium"
+        },
+        {
+            "field": "due_date",
+            "type": "date",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "status",
+            "type": "varchar(255)",
+            "null": "NO",
+            "key": "",
+            "default": "pending"
+        },
+        {
+            "field": "created_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "updated_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "deleted_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        }
+    ],
+    "crm_emails": [
+        {
+            "field": "id",
+            "type": "bigint(20) unsigned",
+            "null": "NO",
+            "key": "PRI",
+            "default": null
+        },
+        {
+            "field": "company_id",
+            "type": "bigint(20) unsigned",
+            "null": "NO",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "user_id",
+            "type": "bigint(20) unsigned",
+            "null": "NO",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "contact_id",
+            "type": "bigint(20) unsigned",
+            "null": "YES",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "lead_id",
+            "type": "bigint(20) unsigned",
+            "null": "YES",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "deal_id",
+            "type": "bigint(20) unsigned",
+            "null": "YES",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "from_email",
+            "type": "varchar(255)",
+            "null": "NO",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "to_email",
+            "type": "varchar(255)",
+            "null": "NO",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "cc_email",
+            "type": "varchar(255)",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "bcc_email",
+            "type": "varchar(255)",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "subject",
+            "type": "varchar(255)",
+            "null": "NO",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "body_html",
+            "type": "longtext",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "status",
+            "type": "varchar(255)",
+            "null": "NO",
+            "key": "",
+            "default": "sent"
+        },
+        {
+            "field": "sent_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "created_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "updated_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        }
+    ],
+    "crm_calls": [
+        {
+            "field": "id",
+            "type": "bigint(20) unsigned",
+            "null": "NO",
+            "key": "PRI",
+            "default": null
+        },
+        {
+            "field": "company_id",
+            "type": "bigint(20) unsigned",
+            "null": "NO",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "user_id",
+            "type": "bigint(20) unsigned",
+            "null": "NO",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "contact_id",
+            "type": "bigint(20) unsigned",
+            "null": "YES",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "lead_id",
+            "type": "bigint(20) unsigned",
+            "null": "YES",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "deal_id",
+            "type": "bigint(20) unsigned",
+            "null": "YES",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "call_type",
+            "type": "varchar(255)",
+            "null": "NO",
+            "key": "",
+            "default": "outgoing"
+        },
+        {
+            "field": "phone_number",
+            "type": "varchar(255)",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "duration_seconds",
+            "type": "int(11)",
+            "null": "NO",
+            "key": "",
+            "default": "0"
+        },
+        {
+            "field": "call_time",
+            "type": "datetime",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "outcome",
+            "type": "varchar(255)",
+            "null": "NO",
+            "key": "",
+            "default": "connected"
+        },
+        {
+            "field": "notes",
+            "type": "text",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "created_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "updated_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        }
+    ],
+    "crm_meetings": [
+        {
+            "field": "id",
+            "type": "bigint(20) unsigned",
+            "null": "NO",
+            "key": "PRI",
+            "default": null
+        },
+        {
+            "field": "company_id",
+            "type": "bigint(20) unsigned",
+            "null": "NO",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "user_id",
+            "type": "bigint(20) unsigned",
+            "null": "NO",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "contact_id",
+            "type": "bigint(20) unsigned",
+            "null": "YES",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "lead_id",
+            "type": "bigint(20) unsigned",
+            "null": "YES",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "deal_id",
+            "type": "bigint(20) unsigned",
+            "null": "YES",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "title",
+            "type": "varchar(255)",
+            "null": "NO",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "description",
+            "type": "text",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "meeting_date",
+            "type": "date",
+            "null": "NO",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "start_time",
+            "type": "time",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "end_time",
+            "type": "time",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "location",
+            "type": "varchar(255)",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "meeting_link",
+            "type": "varchar(255)",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "participants",
+            "type": "longtext",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "status",
+            "type": "varchar(255)",
+            "null": "NO",
+            "key": "",
+            "default": "scheduled"
+        },
+        {
+            "field": "created_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "updated_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        }
+    ],
+    "crm_notes": [
+        {
+            "field": "id",
+            "type": "bigint(20) unsigned",
+            "null": "NO",
+            "key": "PRI",
+            "default": null
+        },
+        {
+            "field": "company_id",
+            "type": "bigint(20) unsigned",
+            "null": "NO",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "user_id",
+            "type": "bigint(20) unsigned",
+            "null": "NO",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "notable_type",
+            "type": "varchar(255)",
+            "null": "NO",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "notable_id",
+            "type": "bigint(20) unsigned",
+            "null": "NO",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "title",
+            "type": "varchar(255)",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "content",
+            "type": "text",
+            "null": "NO",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "created_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "updated_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        }
+    ],
+    "crm_customer_segments": [
+        {
+            "field": "id",
+            "type": "bigint(20) unsigned",
+            "null": "NO",
+            "key": "PRI",
+            "default": null
+        },
+        {
+            "field": "company_id",
+            "type": "bigint(20) unsigned",
+            "null": "NO",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "name",
+            "type": "varchar(255)",
+            "null": "NO",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "code",
+            "type": "varchar(255)",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "description",
+            "type": "text",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "rules",
+            "type": "longtext",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "color",
+            "type": "varchar(255)",
+            "null": "NO",
+            "key": "",
+            "default": "#0F8B7A"
+        },
+        {
+            "field": "status",
+            "type": "varchar(255)",
+            "null": "NO",
+            "key": "",
+            "default": "active"
+        },
+        {
+            "field": "created_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "updated_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        }
+    ],
+    "crm_segment_members": [
+        {
+            "field": "id",
+            "type": "bigint(20) unsigned",
+            "null": "NO",
+            "key": "PRI",
+            "default": null
+        },
+        {
+            "field": "segment_id",
+            "type": "bigint(20) unsigned",
+            "null": "NO",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "customer_id",
+            "type": "bigint(20) unsigned",
+            "null": "NO",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "joined_at",
+            "type": "timestamp",
+            "null": "NO",
+            "key": "",
+            "default": "current_timestamp()"
+        },
+        {
+            "field": "created_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "updated_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        }
+    ],
+    "crm_analytics_snapshots": [
+        {
+            "field": "id",
+            "type": "bigint(20) unsigned",
+            "null": "NO",
+            "key": "PRI",
+            "default": null
+        },
+        {
+            "field": "company_id",
+            "type": "bigint(20) unsigned",
+            "null": "NO",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "snapshot_date",
+            "type": "date",
+            "null": "NO",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "total_contacts",
+            "type": "int(11)",
+            "null": "NO",
+            "key": "",
+            "default": "0"
+        },
+        {
+            "field": "total_leads",
+            "type": "int(11)",
+            "null": "NO",
+            "key": "",
+            "default": "0"
+        },
+        {
+            "field": "qualified_leads",
+            "type": "int(11)",
+            "null": "NO",
+            "key": "",
+            "default": "0"
+        },
+        {
+            "field": "open_deals",
+            "type": "int(11)",
+            "null": "NO",
+            "key": "",
+            "default": "0"
+        },
+        {
+            "field": "won_deals",
+            "type": "int(11)",
+            "null": "NO",
+            "key": "",
+            "default": "0"
+        },
+        {
+            "field": "lost_deals",
+            "type": "int(11)",
+            "null": "NO",
+            "key": "",
+            "default": "0"
+        },
+        {
+            "field": "pipeline_value",
+            "type": "decimal(15,2)",
+            "null": "NO",
+            "key": "",
+            "default": "0.00"
+        },
+        {
+            "field": "expected_revenue",
+            "type": "decimal(15,2)",
+            "null": "NO",
+            "key": "",
+            "default": "0.00"
+        },
+        {
+            "field": "conversion_rate",
+            "type": "decimal(5,2)",
+            "null": "NO",
+            "key": "",
+            "default": "0.00"
+        },
+        {
+            "field": "metrics",
+            "type": "longtext",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "created_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "updated_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        }
+    ],
+    "crm_audit_logs": [
+        {
+            "field": "id",
+            "type": "bigint(20) unsigned",
+            "null": "NO",
+            "key": "PRI",
+            "default": null
+        },
+        {
+            "field": "company_id",
+            "type": "bigint(20) unsigned",
+            "null": "NO",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "user_id",
+            "type": "bigint(20) unsigned",
+            "null": "YES",
+            "key": "MUL",
+            "default": null
+        },
+        {
+            "field": "module",
+            "type": "varchar(255)",
+            "null": "NO",
+            "key": "",
+            "default": "CRM"
+        },
+        {
+            "field": "action",
+            "type": "varchar(255)",
+            "null": "NO",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "record_type",
+            "type": "varchar(255)",
+            "null": "NO",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "record_id",
+            "type": "bigint(20) unsigned",
+            "null": "NO",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "old_values",
+            "type": "longtext",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "new_values",
+            "type": "longtext",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "ip_address",
+            "type": "varchar(255)",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "user_agent",
+            "type": "text",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "created_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        },
+        {
+            "field": "updated_at",
+            "type": "timestamp",
+            "null": "YES",
+            "key": "",
+            "default": null
+        }
+    ]
+}
