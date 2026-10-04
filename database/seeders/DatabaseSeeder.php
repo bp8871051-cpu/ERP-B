@@ -128,7 +128,7 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
-        $modules = ['dashboard', 'hrm', 'inventory', 'crm', 'pos', 'finance', 'sales', 'procurement', 'projects', 'support', 'users', 'settings'];
+        $modules = ['dashboard', 'hrm', 'inventory', 'crm', 'pos', 'assets', 'documents', 'finance', 'sales', 'procurement', 'projects', 'support', 'users', 'settings'];
         $actions = ['view', 'create', 'edit', 'delete', 'export'];
 
         $allPermIds = [];
@@ -1010,6 +1010,9 @@ class DatabaseSeeder extends Seeder
 
         // Seed Enterprise CRM module data
         $this->call(EnterpriseCrmSeeder::class);
+
+        // Seed Enterprise POS, Assets, and Documents modules
+        $this->call(EnterpriseNewModulesSeeder::class);
     }
 }
 

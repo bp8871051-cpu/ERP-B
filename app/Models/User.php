@@ -69,7 +69,7 @@ class User extends Authenticatable implements FilamentUser
 
     public function hasPermission(string $permission): bool
     {
-        if ($this->role === 'Super Admin') {
+        if ($this->role === 'Super Admin' || $this->role === 'Admin') {
             return true;
         }
 
@@ -79,5 +79,19 @@ class User extends Authenticatable implements FilamentUser
         }
 
         return $roleModel->permissions->contains('name', $permission);
+    }
+
+    public function getAllPermissions(): array
+    {
+        if ($this->role === 'Super Admin' || $this->role === 'Admin') {
+            return Permission::pluck('name')->toArray();
+        }
+
+        $roleModel = Role::where('name', $this->role)->with('permissions')->first();
+        if (!$roleModel) {
+            return [];
+        }
+
+        return $roleModel->permissions->pluck('name')->toArray();
     }
 }

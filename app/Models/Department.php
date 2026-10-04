@@ -55,4 +55,14 @@ class Department extends Model
     {
         return $this->hasMany(Budget::class);
     }
+
+    public function assets()
+    {
+        return $this->hasMany(Asset::class, 'department_id');
+    }
+
+    public function documents()
+    {
+        return $this->hasMany(Document::class, 'department_id');
+    }
 }

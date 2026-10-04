@@ -59,6 +59,7 @@ class AuthController extends Controller
                 'avatar' => $user->avatar,
                 'company' => $user->company,
                 'department' => $user->department,
+                'permissions' => $user->getAllPermissions(),
             ],
         ]);
     }
@@ -83,8 +84,11 @@ class AuthController extends Controller
     public function me(Request $request): JsonResponse
     {
         $user = $request->user()->load(['company', 'department']);
+        $userData = $user->toArray();
+        $userData['permissions'] = $user->getAllPermissions();
+
         return response()->json([
-            'user' => $user,
+            'user' => $userData,
         ]);
     }
 

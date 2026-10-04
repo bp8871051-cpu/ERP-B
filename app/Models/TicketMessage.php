@@ -9,7 +9,17 @@ class TicketMessage extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['ticket_id', 'user_id', 'message', 'is_internal'];
+    protected $fillable = [
+        'company_id',
+        'ticket_id',
+        'user_id',
+        'sender_type',
+        'message_type',
+        'message',
+        'attachment_name',
+        'attachment_url',
+        'is_internal',
+    ];
 
     protected $casts = [
         'is_internal' => 'boolean',
