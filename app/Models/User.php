@@ -2,14 +2,12 @@
 
 namespace App\Models;
 
-use Filament\Models\Contracts\FilamentUser;
-use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable implements FilamentUser
+class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
@@ -39,12 +37,6 @@ class User extends Authenticatable implements FilamentUser
             'password' => 'hashed',
             'is_active' => 'boolean',
         ];
-    }
-
-    public function canAccessPanel(Panel $panel): bool
-    {
-        // Super Admin and Admin can access Filament Admin panel
-        return in_array($this->role, ['Super Admin', 'Admin', 'HR Manager', 'Inventory Manager', 'CRM Manager', 'Finance Manager', 'Sales Manager', 'Procurement Manager', 'Project Manager', 'Support Manager']);
     }
 
     public function company()

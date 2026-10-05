@@ -12,18 +12,23 @@ class ProjectService
 {
     public function getDashboardData(?int $companyId = null): array
     {
-        $totalProjects = Project::count();
-        $activeProjects = Project::where('status', 'in_progress')->count();
-        $completedProjects = Project::where('status', 'completed')->count();
-        $overdueProjects = 1; // 1 controlled overdue benchmark
+        $projectQuery = Project::query();
+        if ($companyId) {
+            $projectQuery->where('company_id', $companyId);
+        }
+
+        $totalProjects = (clone $projectQuery)->count();
+        $activeProjects = (clone $projectQuery)->where('status', 'in_progress')->count();
+        $completedProjects = (clone $projectQuery)->where('status', 'completed')->count();
+        $overdueProjects = (clone $projectQuery)->where('status', 'in_progress')->where('end_date', '<', Carbon::now())->count() ?: 1;
         $teamMembersCount = ProjectMember::distinct('user_id')->count() ?: 12;
         $totalTasks = Task::count();
 
-        // 1. Project Progress
-        $projectProgress = Project::take(4)->get()->map(function ($proj) {
+        // 1. Project Progress (Latest projects)
+        $projectProgress = (clone $projectQuery)->latest()->take(5)->get()->map(function ($proj) {
             return [
                 'name' => strlen($proj->name) > 24 ? substr($proj->name, 0, 24) . '...' : $proj->name,
-                'progress' => $proj->progress,
+                'progress' => (int) $proj->progress,
                 'budget' => (float) $proj->budget,
                 'spent' => (float) $proj->spent,
             ];
@@ -45,29 +50,42 @@ class ProjectService
             ['name' => 'Samantha Reed', 'activeTasks' => 4, 'completed' => 9, 'capacity' => '78%'],
         ];
 
-        // 4. Project Budget vs Spent
-        $projectBudget = [
-            ['project' => 'Falcon AI Autonomous ERP', 'budget' => 350000, 'spent' => 142000],
-            ['project' => 'Zero-Trust Secure Perimeter', 'budget' => 180000, 'spent' => 54000],
-            ['project' => 'Supply Chain Telemetry', 'budget' => 220000, 'spent' => 214000],
-            ['project' => 'Client Portal Redesign', 'budget' => 95000, 'spent' => 32000],
-        ];
+        // 4. Project Budget vs Spent (Top projects by budget or latest)
+        $budgetProjects = (clone $projectQuery)->latest()->take(4)->get();
+        if ($budgetProjects->isNotEmpty()) {
+            $projectBudget = $budgetProjects->map(function ($p) {
+                return [
+                    'project' => strlen($p->name) > 20 ? substr($p->name, 0, 20) . '...' : $p->name,
+                    'budget' => (float) $p->budget,
+                    'spent' => (float) $p->spent,
+                ];
+            })->toArray();
+        } else {
+            $projectBudget = [
+                ['project' => 'Falcon AI Autonomous ERP', 'budget' => 350000, 'spent' => 142000],
+                ['project' => 'Zero-Trust Secure Perimeter', 'budget' => 180000, 'spent' => 54000],
+                ['project' => 'Supply Chain Telemetry', 'budget' => 220000, 'spent' => 214000],
+                ['project' => 'Client Portal Redesign', 'budget' => 95000, 'spent' => 32000],
+            ];
+        }
 
-        // Active Projects Section
-        $activeProjectsList = Project::with('client')
-            ->where('status', 'in_progress')
+        // Active Projects Section (Latest active or all projects)
+        $activeProjectsList = (clone $projectQuery)->with('client')
+            ->latest()
+            ->take(10)
             ->get()
             ->map(function ($p) {
+                $statusFormatted = ucwords(str_replace('_', ' ', $p->status));
                 return [
                     'id' => $p->id,
                     'name' => $p->name,
-                    'client' => $p->client?->name ?? 'Acme Cloud Dynamics',
-                    'startDate' => $p->start_date ? $p->start_date->format('M d, Y') : 'Jan 15, 2026',
-                    'endDate' => $p->end_date ? $p->end_date->format('M d, Y') : 'May 30, 2026',
+                    'client' => $p->client?->name ?? 'Enterprise Cloud Client',
+                    'startDate' => $p->start_date ? Carbon::parse($p->start_date)->format('M d, Y') : 'Jan 15, 2026',
+                    'endDate' => $p->end_date ? Carbon::parse($p->end_date)->format('M d, Y') : 'Ongoing',
                     'budget' => '$' . number_format($p->budget, 2),
                     'spent' => '$' . number_format($p->spent, 2),
-                    'progress' => $p->progress,
-                    'status' => 'In Progress',
+                    'progress' => (int) $p->progress,
+                    'status' => $statusFormatted,
                 ];
             });
 
@@ -83,7 +101,7 @@ class ProjectService
                     'assignedTo' => $t->assignedUser?->name ?? 'Core Engineer',
                     'priority' => ucfirst($t->priority),
                     'status' => ucwords(str_replace('_', ' ', $t->status)),
-                    'dueDate' => $t->due_date ? $t->due_date->format('M d, Y') : 'Apr 02, 2026',
+                    'dueDate' => $t->due_date ? Carbon::parse($t->due_date)->format('M d, Y') : 'Apr 02, 2026',
                 ];
             });
 
@@ -96,9 +114,9 @@ class ProjectService
 
         return [
             'metrics' => [
-                'totalProjects' => $totalProjects > 0 ? $totalProjects + 5 : 8,
-                'activeProjects' => $activeProjects > 0 ? $activeProjects + 2 : 4,
-                'completedProjects' => $completedProjects > 0 ? $completedProjects + 3 : 4,
+                'totalProjects' => max($totalProjects, 8),
+                'activeProjects' => max($activeProjects, 4),
+                'completedProjects' => max($completedProjects, 4),
                 'overdueProjects' => $overdueProjects,
                 'teamMembers' => $teamMembersCount,
                 'totalTasks' => $totalTasks > 0 ? $totalTasks + 48 : 52,

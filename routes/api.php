@@ -786,6 +786,12 @@ Route::middleware('auth:sanctum')->group(function () use ($registerAppRoutes) {
     Route::get('/purchase/dashboard', [PurchaseController::class, 'dashboard']);
     Route::get('/procurement/dashboard', [ProcurementController::class, 'dashboard']);
     Route::get('/projects/dashboard', [ProjectController::class, 'dashboard']);
+    Route::get('/projects/meta', [ProjectController::class, 'meta']);
+    Route::get('/projects', [ProjectController::class, 'index']);
+    Route::post('/projects', [ProjectController::class, 'store']);
+    Route::get('/projects/{id}', [ProjectController::class, 'show']);
+    Route::put('/projects/{id}', [ProjectController::class, 'update']);
+    Route::delete('/projects/{id}', [ProjectController::class, 'destroy']);
     Route::get('/support/dashboard', [SupportController::class, 'dashboard']);
 
     // Applications & Inventory Module Routes (Direct)
