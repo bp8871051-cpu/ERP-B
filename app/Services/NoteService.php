@@ -18,7 +18,7 @@ class NoteService
         $query = Note::where('company_id', $companyId)
             ->with(['tags', 'attachments', 'user:id,name,avatar'])
             ->orderBy('is_pinned', 'desc')
-            ->orderBy('updated_at', 'desc');
+            ->orderBy('created_at', 'desc');
 
         if ($filter === 'pinned') {
             $query->where('is_pinned', true);
@@ -69,7 +69,8 @@ class NoteService
                     'size' => $a->file_size,
                 ]),
                 'updatedAt' => $n->updated_at->format('M d, Y h:i A'),
-                'timeAgo' => $n->updated_at->diffForHumans(),
+                'createdAt' => $n->created_at->format('M d, Y h:i A'),
+                'timeAgo' => $n->created_at->diffForHumans(),
             ];
         });
 

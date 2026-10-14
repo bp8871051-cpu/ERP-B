@@ -199,7 +199,27 @@ class EmailService
                 }
             }
 
-            return $email->load(['recipients', 'attachments']);
+            $email->load(['recipients', 'attachments']);
+
+            if (!$isDraft) {
+                $sendTo = [];
+                foreach ($toRecipients as $to) {
+                    $trimmed = trim(is_array($to) ? ($to['email'] ?? '') : $to);
+                    if ($trimmed && filter_var($trimmed, FILTER_VALIDATE_EMAIL)) {
+                        $sendTo[] = $trimmed;
+                    }
+                }
+                
+                if (!empty($sendTo)) {
+                    try {
+                        \Illuminate\Support\Facades\Mail::to($sendTo)->send(new \App\Mail\ErpEmail($email->subject, $email->body_html));
+                    } catch (\Exception $e) {
+                        \Illuminate\Support\Facades\Log::error('Mail send failed: ' . $e->getMessage());
+                    }
+                }
+            }
+
+            return $email;
         });
     }
 

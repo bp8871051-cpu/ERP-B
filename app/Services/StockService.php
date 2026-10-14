@@ -149,6 +149,7 @@ class StockService
         });
     }
 
+
     /**
      * Reserve stock for order/shipment.
      */

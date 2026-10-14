@@ -136,7 +136,7 @@ class PosRefundService
             ]);
 
             // Update order status
-            $totalRefunded = (float) PosRefund::where('pos_order_id', $order->id)->sum('refund_amount');
+            $totalRefunded = (float) PosRefund::where('pos_order_id', $order->id)->sum('amount');
             if ($totalRefunded >= (float) $order->total_amount) {
                 $order->update([
                     'order_status' => 'refunded',

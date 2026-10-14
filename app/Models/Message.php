@@ -25,6 +25,13 @@ class Message extends Model
         'is_pinned' => 'boolean',
     ];
 
+    protected $appends = ['message'];
+
+    public function getMessageAttribute()
+    {
+        return $this->body;
+    }
+
     public function conversation()
     {
         return $this->belongsTo(Conversation::class);

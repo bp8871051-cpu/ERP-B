@@ -54,13 +54,17 @@ class ChatController extends Controller
     public function sendMessage(int $id, Request $request): JsonResponse
     {
         $request->validate([
-            'body' => 'nullable|string',
+            'message' => 'nullable|string',
             'type' => 'nullable|string|in:text,image,file,voice,system',
-            'parent_id' => 'nullable|integer',
+            'reply_to_id' => 'nullable|integer',
             'attachments' => 'nullable|array',
         ]);
 
-        $message = $this->chatService->sendMessage($id, $request->user(), $request->all());
+        $payload = $request->all();
+        $payload['body'] = $request->input('message');
+        $payload['parent_id'] = $request->input('reply_to_id');
+
+        $message = $this->chatService->sendMessage($id, $request->user(), $payload);
 
         return response()->json([
             'status' => 'success',

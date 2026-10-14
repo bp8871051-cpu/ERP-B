@@ -85,7 +85,9 @@ class PipelineService
 
         $conversionRate = $totalDeals > 0 ? round(($wonDealsCount / $totalDeals) * 100, 1) : 0.0;
 
-        $allPipelines = CrmPipeline::when($companyId, fn($q) => $q->where('company_id', $companyId))->get(['id', 'name', 'is_default']);
+        $allPipelines = CrmPipeline::when($companyId, fn($q) => $q->where('company_id', $companyId))
+            ->with('stages')
+            ->get();
 
         return [
             'pipeline' => $pipeline,

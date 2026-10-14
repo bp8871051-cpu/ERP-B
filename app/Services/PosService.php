@@ -54,7 +54,7 @@ class PosService
 
         $todayRefunds = (float) PosRefund::where($companyQuery)
             ->whereDate('created_at', $today)
-            ->sum('refund_amount');
+            ->sum('amount');
 
         // Low stock products
         $lowStockProducts = Product::where($companyQuery)
@@ -215,7 +215,7 @@ class PosService
             $refDate = Carbon::today()->subDays($r);
             $refSum = (float) PosRefund::where($companyQuery)
                 ->whereDate('created_at', $refDate)
-                ->sum('refund_amount');
+                ->sum('amount');
             $refundTrend[] = [
                 'day' => $refDate->format('D'),
                 'date' => $refDate->format('Y-m-d'),
