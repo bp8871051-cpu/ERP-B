@@ -520,6 +520,8 @@ $registerAppRoutes = function () {
         Route::delete('/leads/{id}', [CrmLeadController::class, 'destroy']);
         Route::post('/leads/{id}/convert', [CrmLeadController::class, 'convert']);
         Route::post('/leads/{id}/score', [CrmLeadController::class, 'score']);
+        Route::post('/leads/{id}/assign', [CrmLeadController::class, 'assign']);
+        Route::get('/assignees', [CrmLeadController::class, 'assignees']);
 
         // Lead Sources
         Route::get('/lead-sources', function () {

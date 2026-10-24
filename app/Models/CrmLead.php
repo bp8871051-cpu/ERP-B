@@ -14,6 +14,7 @@ class CrmLead extends Model
 
     protected $fillable = [
         'company_id',
+        'assigned_to',
         'contact_id',
         'customer_id',
         'name',
@@ -77,6 +78,11 @@ class CrmLead extends Model
     public function owner()
     {
         return $this->belongsTo(User::class, 'owner_id');
+    }
+
+    public function assignedUser()
+    {
+        return $this->belongsTo(User::class, 'assigned_to');
     }
 
     public function convertedByUser()

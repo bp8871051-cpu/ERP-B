@@ -24,7 +24,7 @@ class LeadService
     public function list(array $params, ?int $companyId = null): LengthAwarePaginator
     {
         $query = CrmLead::query()
-            ->with(['company', 'contact', 'customer', 'owner', 'leadSource', 'campaign']);
+            ->with(['company', 'contact', 'customer', 'owner', 'assignedUser', 'leadSource', 'campaign']);
 
         if ($companyId) {
             $query->where('company_id', $companyId);
@@ -56,9 +56,14 @@ class LeadService
             $query->where('lead_source_id', $params['lead_source_id']);
         }
 
-        // Owner Filter
-        if (!empty($params['owner_id'])) {
-            $query->where('owner_id', $params['owner_id']);
+        // Owner / Assigned Filter
+        if (!empty($params['assigned_to'])) {
+            $query->where('assigned_to', $params['assigned_to']);
+        } elseif (!empty($params['owner_id'])) {
+            $query->where(function ($q) use ($params) {
+                $q->where('assigned_to', $params['owner_id'])
+                  ->orWhere('owner_id', $params['owner_id']);
+            });
         }
 
         // Sorting
@@ -77,7 +82,7 @@ class LeadService
 
     public function getDetails(CrmLead $lead): array
     {
-        $lead->load(['company', 'contact', 'customer', 'owner', 'leadSource', 'campaign', 'scoreItems']);
+        $lead->load(['company', 'contact', 'customer', 'owner', 'assignedUser', 'leadSource', 'campaign', 'scoreItems']);
 
         $activities = CrmActivity::where('lead_id', $lead->id)->latest()->get();
         $tasks = CrmTask::where('lead_id', $lead->id)->with('assignedUser')->latest()->get();

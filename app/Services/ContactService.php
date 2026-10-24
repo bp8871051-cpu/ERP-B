@@ -23,7 +23,7 @@ class ContactService
     public function list(array $params, ?int $companyId = null): LengthAwarePaginator
     {
         $query = CrmContact::query()
-            ->with(['company', 'customer', 'owner', 'leadSource']);
+            ->with(['company', 'customer', 'owner', 'leadSource', 'leads']);
 
         if ($companyId) {
             $query->where('company_id', $companyId);
@@ -72,7 +72,7 @@ class ContactService
 
     public function getDetails(CrmContact $contact): array
     {
-        $contact->load(['company', 'customer', 'owner', 'leadSource']);
+        $contact->load(['company', 'customer', 'owner', 'leadSource', 'leads']);
 
         // Deals
         $deals = CrmDeal::where('contact_id', $contact->id)->with('stage')->latest()->get();

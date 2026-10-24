@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Crm;
 use App\Http\Controllers\Controller;
 use App\Models\CrmAuditLog;
 use App\Models\CrmContact;
+use App\Services\ContactPrivacyService;
 use App\Services\ContactService;
 use App\Services\CrmReportService;
 use Illuminate\Http\JsonResponse;
@@ -23,12 +24,18 @@ class CrmContactController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $companyId = $request->header('X-Company-ID') ? (int) $request->header('X-Company-ID') : ($request->user()?->company_id ?? 1);
+        $user = $request->user();
+        $companyId = $request->header('X-Company-ID') ? (int) $request->header('X-Company-ID') : ($user?->company_id ?? 1);
         $paginator = $this->contactService->list($request->all(), $companyId);
+
+        // Apply contact privacy masking (Rule 8, 9)
+        $items = collect($paginator->items())->map(function ($contact) use ($user) {
+            return ContactPrivacyService::maskContact($contact, $user);
+        });
 
         return response()->json([
             'status' => 'success',
-            'data' => $paginator->items(),
+            'data' => $items,
             'meta' => [
                 'current_page' => $paginator->currentPage(),
                 'last_page' => $paginator->lastPage(),
@@ -40,6 +47,8 @@ class CrmContactController extends Controller
 
     public function store(Request $request): JsonResponse
     {
+        $user = $request->user();
+
         $validated = $request->validate([
             'first_name' => 'required|string|max:255',
             'last_name' => 'nullable|string|max:255',
@@ -64,9 +73,9 @@ class CrmContactController extends Controller
             'status' => 'nullable|string|in:active,inactive',
         ]);
 
-        $companyId = $request->header('X-Company-ID') ? (int) $request->header('X-Company-ID') : ($request->user()?->company_id ?? 1);
+        $companyId = $request->header('X-Company-ID') ? (int) $request->header('X-Company-ID') : ($user?->company_id ?? 1);
         $validated['company_id'] = $companyId;
-        $validated['owner_id'] = $validated['owner_id'] ?? $request->user()?->id ?? 1;
+        $validated['owner_id'] = $validated['owner_id'] ?? $user?->id ?? 1;
 
         $contact = CrmContact::create($validated);
 
@@ -77,22 +86,24 @@ class CrmContactController extends Controller
             null,
             $contact->toArray(),
             $companyId,
-            $request->user()?->id
+            $user?->id
         );
 
         return response()->json([
             'status' => 'success',
             'message' => 'Contact created successfully',
-            'data' => $contact->load(['customer', 'owner', 'leadSource']),
+            'data' => ContactPrivacyService::maskContact($contact->load(['customer', 'owner', 'leadSource']), $user),
         ], 201);
     }
 
     public function show(Request $request, int $id): JsonResponse
     {
-        $companyId = $request->header('X-Company-ID') ? (int) $request->header('X-Company-ID') : ($request->user()?->company_id ?? 1);
+        $user = $request->user();
+        $companyId = $request->header('X-Company-ID') ? (int) $request->header('X-Company-ID') : ($user?->company_id ?? 1);
         $contact = CrmContact::where('company_id', $companyId)->findOrFail($id);
 
         $details = $this->contactService->getDetails($contact);
+        $details['contact'] = ContactPrivacyService::maskContact($details['contact'], $user);
 
         return response()->json([
             'status' => 'success',
@@ -102,7 +113,8 @@ class CrmContactController extends Controller
 
     public function update(Request $request, int $id): JsonResponse
     {
-        $companyId = $request->header('X-Company-ID') ? (int) $request->header('X-Company-ID') : ($request->user()?->company_id ?? 1);
+        $user = $request->user();
+        $companyId = $request->header('X-Company-ID') ? (int) $request->header('X-Company-ID') : ($user?->company_id ?? 1);
         $contact = CrmContact::where('company_id', $companyId)->findOrFail($id);
 
         $validated = $request->validate([
@@ -129,6 +141,16 @@ class CrmContactController extends Controller
             'status' => 'nullable|string|in:active,inactive',
         ]);
 
+        // Security: Non-Super Admin cannot modify contact email/phone if unauthorized (Rule 8, 9, 13)
+        if (!$user || !$user->isSuperAdmin()) {
+            if (!ContactPrivacyService::canViewContactInfo($user, $contact)) {
+                unset($validated['email']);
+                unset($validated['secondary_email']);
+                unset($validated['phone']);
+                unset($validated['whatsapp']);
+            }
+        }
+
         $oldValues = $contact->toArray();
         $contact->update($validated);
 
@@ -139,19 +161,20 @@ class CrmContactController extends Controller
             $oldValues,
             $contact->toArray(),
             $companyId,
-            $request->user()?->id
+            $user?->id
         );
 
         return response()->json([
             'status' => 'success',
             'message' => 'Contact updated successfully',
-            'data' => $contact->load(['customer', 'owner', 'leadSource']),
+            'data' => ContactPrivacyService::maskContact($contact->load(['customer', 'owner', 'leadSource']), $user),
         ]);
     }
 
     public function destroy(Request $request, int $id): JsonResponse
     {
-        $companyId = $request->header('X-Company-ID') ? (int) $request->header('X-Company-ID') : ($request->user()?->company_id ?? 1);
+        $user = $request->user();
+        $companyId = $request->header('X-Company-ID') ? (int) $request->header('X-Company-ID') : ($user?->company_id ?? 1);
         $contact = CrmContact::where('company_id', $companyId)->findOrFail($id);
 
         $contact->delete();
@@ -163,7 +186,7 @@ class CrmContactController extends Controller
             null,
             null,
             $companyId,
-            $request->user()?->id
+            $user?->id
         );
 
         return response()->json([
@@ -174,8 +197,9 @@ class CrmContactController extends Controller
 
     public function export(Request $request)
     {
-        $companyId = $request->header('X-Company-ID') ? (int) $request->header('X-Company-ID') : ($request->user()?->company_id ?? 1);
-        return $this->reportService->exportContactsCsv($companyId);
+        $user = $request->user();
+        $companyId = $request->header('X-Company-ID') ? (int) $request->header('X-Company-ID') : ($user?->company_id ?? 1);
+        return $this->reportService->exportContactsCsv($companyId, $user);
     }
 
     public function import(Request $request): JsonResponse
@@ -184,8 +208,9 @@ class CrmContactController extends Controller
             'rows' => 'required|array',
         ]);
 
-        $companyId = $request->header('X-Company-ID') ? (int) $request->header('X-Company-ID') : ($request->user()?->company_id ?? 1);
-        $result = $this->reportService->importContacts($request->input('rows'), $companyId, $request->user()?->id);
+        $user = $request->user();
+        $companyId = $request->header('X-Company-ID') ? (int) $request->header('X-Company-ID') : ($user?->company_id ?? 1);
+        $result = $this->reportService->importContacts($request->input('rows'), $companyId, $user?->id);
 
         return response()->json([
             'status' => 'success',

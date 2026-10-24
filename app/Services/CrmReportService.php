@@ -5,32 +5,34 @@ namespace App\Services;
 use App\Models\CrmContact;
 use App\Models\CrmDeal;
 use App\Models\CrmLead;
+use App\Services\ContactPrivacyService;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class CrmReportService
 {
-    public function exportContactsCsv(?int $companyId = null): StreamedResponse
+    public function exportContactsCsv(?int $companyId = null, ?\App\Models\User $user = null): StreamedResponse
     {
         $headers = [
             'Content-Type' => 'text/csv',
             'Content-Disposition' => 'attachment; filename="crm_contacts_' . date('Y-m-d') . '.csv"',
         ];
 
-        return response()->stream(function () use ($companyId) {
+        return response()->stream(function () use ($companyId, $user) {
             $handle = fopen('php://output', 'w');
             fputcsv($handle, ['ID', 'First Name', 'Last Name', 'Company', 'Email', 'Phone', 'Job Title', 'City', 'State', 'Status', 'Created At']);
 
-            $query = CrmContact::query()->when($companyId, fn($q) => $q->where('company_id', $companyId));
-            $query->chunk(200, function ($contacts) use ($handle) {
+            $query = CrmContact::query()->with('leads')->when($companyId, fn($q) => $q->where('company_id', $companyId));
+            $query->chunk(200, function ($contacts) use ($handle, $user) {
                 foreach ($contacts as $c) {
+                    $canView = ContactPrivacyService::canViewContactInfo($user, $c);
                     fputcsv($handle, [
                         $c->id,
                         $c->first_name,
                         $c->last_name,
                         $c->company_name,
-                        $c->email,
-                        $c->phone,
+                        $canView ? $c->email : ContactPrivacyService::maskEmail($c->email),
+                        $canView ? $c->phone : ContactPrivacyService::maskPhone($c->phone),
                         $c->job_title,
                         $c->city,
                         $c->state,
@@ -44,26 +46,28 @@ class CrmReportService
         }, 200, $headers);
     }
 
-    public function exportLeadsCsv(?int $companyId = null): StreamedResponse
+    public function exportLeadsCsv(?int $companyId = null, ?\App\Models\User $user = null): StreamedResponse
     {
         $headers = [
             'Content-Type' => 'text/csv',
             'Content-Disposition' => 'attachment; filename="crm_leads_' . date('Y-m-d') . '.csv"',
         ];
 
-        return response()->stream(function () use ($companyId) {
+        return response()->stream(function () use ($companyId, $user) {
             $handle = fopen('php://output', 'w');
-            fputcsv($handle, ['ID', 'Name', 'Company', 'Email', 'Phone', 'Score', 'Category', 'Status', 'Budget', 'Expected Value', 'Created At']);
+            fputcsv($handle, ['ID', 'Name', 'Company', 'Email', 'Phone', 'Assigned To', 'Score', 'Category', 'Status', 'Budget', 'Expected Value', 'Created At']);
 
-            $query = CrmLead::query()->when($companyId, fn($q) => $q->where('company_id', $companyId));
-            $query->chunk(200, function ($leads) use ($handle) {
+            $query = CrmLead::query()->with('assignedUser')->when($companyId, fn($q) => $q->where('company_id', $companyId));
+            $query->chunk(200, function ($leads) use ($handle, $user) {
                 foreach ($leads as $l) {
+                    $canView = ContactPrivacyService::canViewLeadContactInfo($user, $l);
                     fputcsv($handle, [
                         $l->id,
                         $l->name,
                         $l->company_name,
-                        $l->email,
-                        $l->phone,
+                        $canView ? $l->email : ContactPrivacyService::maskEmail($l->email),
+                        $canView ? $l->phone : ContactPrivacyService::maskPhone($l->phone),
+                        $l->assignedUser?->name ?? 'Unassigned',
                         $l->score,
                         $l->score_category,
                         $l->status,

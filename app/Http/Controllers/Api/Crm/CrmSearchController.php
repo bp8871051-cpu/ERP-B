@@ -8,6 +8,7 @@ use App\Models\CrmContact;
 use App\Models\CrmDeal;
 use App\Models\CrmLead;
 use App\Models\Customer;
+use App\Services\ContactPrivacyService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -31,8 +32,11 @@ class CrmSearchController extends Controller
 
         $companyId = $request->header('X-Company-ID') ? (int) $request->header('X-Company-ID') : ($request->user()?->company_id ?? 1);
 
+        $user = $request->user();
+
         // Contacts
         $contacts = CrmContact::where('company_id', $companyId)
+            ->with('leads')
             ->where(function ($q) use ($query) {
                 $q->where('first_name', 'like', "%{$query}%")
                   ->orWhere('last_name', 'like', "%{$query}%")
@@ -40,7 +44,8 @@ class CrmSearchController extends Controller
                   ->orWhere('company_name', 'like', "%{$query}%");
             })
             ->take(5)
-            ->get(['id', 'first_name', 'last_name', 'company_name', 'email', 'phone']);
+            ->get(['id', 'owner_id', 'first_name', 'last_name', 'company_name', 'email', 'phone'])
+            ->map(fn($c) => ContactPrivacyService::maskContact($c, $user));
 
         // Leads
         $leads = CrmLead::where('company_id', $companyId)
@@ -50,7 +55,8 @@ class CrmSearchController extends Controller
                   ->orWhere('email', 'like', "%{$query}%");
             })
             ->take(5)
-            ->get(['id', 'name', 'company_name', 'status', 'score', 'score_category']);
+            ->get(['id', 'assigned_to', 'owner_id', 'name', 'company_name', 'status', 'score', 'score_category'])
+            ->map(fn($l) => ContactPrivacyService::maskLead($l, $user));
 
         // Deals
         $deals = CrmDeal::where('company_id', $companyId)

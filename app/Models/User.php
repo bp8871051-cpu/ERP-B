@@ -29,6 +29,15 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    protected $appends = [
+        'is_super_admin',
+    ];
+
+    public function getIsSuperAdminAttribute(): bool
+    {
+        return $this->isSuperAdmin();
+    }
+
     protected function casts(): array
     {
         return [
@@ -57,6 +66,11 @@ class User extends Authenticatable
     public function layoutPreference()
     {
         return $this->hasOne(UserLayoutPreference::class);
+    }
+
+    public function isSuperAdmin(): bool
+    {
+        return $this->role === 'Super Admin';
     }
 
     public function hasPermission(string $permission): bool
