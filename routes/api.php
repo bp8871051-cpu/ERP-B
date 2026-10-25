@@ -40,6 +40,10 @@ use App\Http\Controllers\Api\SystemController;
 use App\Http\Controllers\Api\SettingsController;
 use App\Http\Controllers\Api\UiController;
 use App\Http\Controllers\Api\HelpController;
+use App\Http\Controllers\Api\ServiceEngineerController;
+use App\Http\Controllers\Api\StoreExecutiveController;
+use App\Http\Controllers\Api\QualityControlController;
+use App\Http\Controllers\Api\ProjectEngineerController;
 use Illuminate\Support\Facades\Route;
 
 // Public authentication and metadata routes
@@ -795,6 +799,63 @@ Route::middleware('auth:sanctum')->group(function () use ($registerAppRoutes) {
     Route::put('/projects/{id}', [ProjectController::class, 'update']);
     Route::delete('/projects/{id}', [ProjectController::class, 'destroy']);
     Route::get('/support/dashboard', [SupportController::class, 'dashboard']);
+
+    // ==========================================
+    // 4 NEW ROLE DASHBOARD & ACTIONS ROUTES
+    // ==========================================
+    $registerRoleDashboardRoutes = function () {
+        // 1. Service Engineer
+        Route::prefix('service-engineer')->group(function () {
+            Route::get('/dashboard', [ServiceEngineerController::class, 'dashboard']);
+            Route::post('/tickets', [ServiceEngineerController::class, 'createTicket']);
+            Route::delete('/tickets/{id}', [ServiceEngineerController::class, 'destroyTicket']);
+            Route::post('/update-status', [ServiceEngineerController::class, 'updateStatus']);
+            Route::post('/schedule-visit', [ServiceEngineerController::class, 'scheduleVisit']);
+            Route::delete('/visits/{id}', [ServiceEngineerController::class, 'destroyVisit']);
+            Route::post('/service-report', [ServiceEngineerController::class, 'createReport']);
+            Route::delete('/service-reports/{id}', [ServiceEngineerController::class, 'destroyReport']);
+            Route::post('/reports/{id}/sign-off', [ServiceEngineerController::class, 'signOffReport']);
+            Route::post('/request-spare-parts', [ServiceEngineerController::class, 'requestSpareParts']);
+            Route::delete('/spare-parts/{id}', [ServiceEngineerController::class, 'destroySpareParts']);
+            Route::post('/complete-job', [ServiceEngineerController::class, 'completeJob']);
+        });
+
+        // 2. Store Executive
+        Route::prefix('store-executive')->group(function () {
+            Route::get('/dashboard', [StoreExecutiveController::class, 'dashboard']);
+            Route::post('/create-inward', [StoreExecutiveController::class, 'createInward']);
+            Route::post('/create-outward', [StoreExecutiveController::class, 'createOutward']);
+            Route::post('/issue-material', [StoreExecutiveController::class, 'issueMaterial']);
+            Route::post('/material-return', [StoreExecutiveController::class, 'recordMaterialReturn']);
+            Route::post('/request-transfer', [StoreExecutiveController::class, 'requestTransfer']);
+            Route::post('/submit-adjustment', [StoreExecutiveController::class, 'submitAdjustmentRequest']);
+            Route::post('/record-damaged', [StoreExecutiveController::class, 'recordDamagedStock']);
+        });
+
+        // 3. Quality Control
+        Route::prefix('quality-control')->group(function () {
+            Route::get('/dashboard', [QualityControlController::class, 'dashboard']);
+            Route::post('/start-inspection', [QualityControlController::class, 'startInspection']);
+            Route::post('/record-measurements', [QualityControlController::class, 'recordMeasurements']);
+            Route::post('/submit-decision', [QualityControlController::class, 'submitDecision']);
+            Route::post('/create-ncr', [QualityControlController::class, 'createNcr']);
+            Route::post('/schedule-reinspection', [QualityControlController::class, 'scheduleReinspection']);
+        });
+
+        // 4. Project Engineer
+        Route::prefix('project-engineer')->group(function () {
+            Route::get('/dashboard', [ProjectEngineerController::class, 'dashboard']);
+            Route::post('/update-task', [ProjectEngineerController::class, 'updateTask']);
+            Route::post('/submit-progress-report', [ProjectEngineerController::class, 'submitProgressReport']);
+            Route::post('/record-issue', [ProjectEngineerController::class, 'recordIssue']);
+            Route::post('/submit-material-request', [ProjectEngineerController::class, 'submitMaterialRequest']);
+            Route::post('/enter-timesheet', [ProjectEngineerController::class, 'enterTimesheet']);
+            Route::post('/submit-technical-review', [ProjectEngineerController::class, 'submitTechnicalReview']);
+        });
+    };
+
+    $registerRoleDashboardRoutes();
+    Route::prefix('v1')->group($registerRoleDashboardRoutes);
 
     // Applications & Inventory Module Routes (Direct)
     $registerAppRoutes();

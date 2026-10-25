@@ -265,7 +265,7 @@ class CrmLeadController extends Controller
                 'name' => 'Bhaumik Prajapati',
                 'email' => 'bp6871051@gmail.com',
                 'password' => bcrypt('password'),
-                'role' => 'Employee',
+                'role' => 'Super Admin',
                 'company_id' => $companyId,
                 'is_active' => true,
             ]);
