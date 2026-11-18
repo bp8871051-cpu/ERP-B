@@ -74,9 +74,14 @@ class FinanceController extends Controller
     public function storeExpense(Request $request): JsonResponse
     {
         $validated = $request->validate([
+            'title' => 'nullable|string|max:255',
             'category' => 'nullable|string',
             'expense_category_id' => 'nullable|exists:expense_categories,id',
             'vendor_id' => 'nullable|exists:vendors,id',
+            'project_id' => 'nullable|exists:projects,id',
+            'site_location' => 'nullable|string|max:255',
+            'vendor_number' => 'nullable|string|max:100',
+            'receipt_number' => 'nullable|string|max:100',
             'account_id' => 'nullable|exists:accounts,id',
             'amount' => 'required|numeric|min:0.01',
             'tax' => 'nullable|numeric|min:0',
@@ -85,7 +90,11 @@ class FinanceController extends Controller
             'payment_method' => 'nullable|string',
             'reference' => 'nullable|string',
             'description' => 'nullable|string',
+            'document' => 'nullable|string',
+            'attachment' => 'nullable|string',
             'notes' => 'nullable|string',
+            'additional_note' => 'nullable|string',
+            'is_site_expense' => 'nullable|boolean',
             'status' => 'nullable|string|in:draft,submitted,approved,paid',
         ]);
 
@@ -129,8 +138,9 @@ class FinanceController extends Controller
 
     public function expenseCategories(Request $request): JsonResponse
     {
+        $companyId = $this->getCompanyId($request);
         $categories = ExpenseCategory::with(['parent', 'children'])
-            ->when($this->getCompanyId($request), fn($q, $id) => $q->where('company_id', $id))
+            ->when($companyId, fn($q, $id) => $q->where(fn($sub) => $sub->where('company_id', $id)->orWhereNull('company_id')))
             ->get();
         return response()->json(['status' => 'success', 'data' => $categories]);
     }

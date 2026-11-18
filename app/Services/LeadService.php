@@ -10,6 +10,7 @@ use App\Models\CrmLead;
 use App\Models\CrmMeeting;
 use App\Models\CrmNote;
 use App\Models\CrmTask;
+use App\Models\User;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class LeadService
@@ -21,13 +22,21 @@ class LeadService
         $this->leadScoringService = $leadScoringService;
     }
 
-    public function list(array $params, ?int $companyId = null): LengthAwarePaginator
+    public function list(array $params, ?int $companyId = null, ?User $user = null): LengthAwarePaginator
     {
         $query = CrmLead::query()
             ->with(['company', 'contact', 'customer', 'owner', 'assignedUser', 'leadSource', 'campaign']);
 
         if ($companyId) {
             $query->where('company_id', $companyId);
+        }
+
+        // Restriction: Leads that are NOT assigned (assigned_to IS NULL) are ONLY visible to Sales, Field, and Tally Manager (or Admin)
+        if ($user && !$user->canViewUnassignedLeads()) {
+            $query->whereNotNull('assigned_to');
+            if (!$user->isManager()) {
+                $query->where('assigned_to', $user->id);
+            }
         }
 
         // Search

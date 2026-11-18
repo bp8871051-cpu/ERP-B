@@ -17,13 +17,16 @@ class ChatService
     {
         $companyId = $user->company_id ?: 1;
 
+        // Ensure company-wide General Chat exists with all roles enrolled
+        $this->ensureGeneralChat($companyId, $user);
+
         $query = Conversation::where('company_id', $companyId)
             ->whereHas('participants', function ($q) use ($user) {
                 $q->where('user_id', $user->id);
             })
             ->with([
-                'participants.user:id,name,email,avatar,role',
-                'latestMessage.sender:id,name,avatar',
+                'participants.user.department',
+                'latestMessage.sender.department',
                 'latestMessage.attachments',
             ])
             ->orderBy('last_message_at', 'desc');
@@ -71,7 +74,10 @@ class ChatService
                     'id' => $conv->latestMessage->id,
                     'message' => $conv->latestMessage->body,
                     'type' => $conv->latestMessage->type,
-                    'user' => [ 'name' => $conv->latestMessage->sender?->name ?? 'User' ],
+                    'user' => [
+                        'name' => $conv->latestMessage->sender?->name ?? 'User',
+                        'department' => $conv->latestMessage->sender?->department_name ?? ($conv->latestMessage->sender?->role ?? 'General'),
+                    ],
                     'time' => $conv->latestMessage->created_at->diffForHumans(null, true, true),
                     'created_at' => $conv->latestMessage->created_at->toIso8601String(),
                 ] : null,
@@ -82,6 +88,7 @@ class ChatService
                         'email' => $p->user->email,
                         'avatar' => $p->user->avatar,
                         'role' => $p->role,
+                        'department' => $p->user->department_name ?? ($p->user->role ?? 'General'),
                         'is_online' => (bool) ($p->user->is_active ?? true),
                     ];
                 }),
@@ -90,6 +97,66 @@ class ChatService
         });
 
         return $conversations;
+    }
+
+    public function ensureGeneralChat(int $companyId, User $user): void
+    {
+        try {
+            $generalConv = Conversation::where('company_id', $companyId)
+                ->where('type', 'group')
+                ->where(function ($q) {
+                    $q->where('title', 'General Chat')
+                      ->orWhere('title', 'like', '%General%');
+                })
+                ->first();
+
+            if (!$generalConv) {
+                $generalConv = Conversation::create([
+                    'company_id' => $companyId,
+                    'type' => 'group',
+                    'title' => 'General Chat (All Roles)',
+                    'avatar' => 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=150',
+                    'created_by' => $user->id,
+                    'last_message_at' => now(),
+                ]);
+
+                Message::create([
+                    'conversation_id' => $generalConv->id,
+                    'user_id' => $user->id,
+                    'body' => 'Welcome to Falcon ERP General Chat! All team members and all departments can communicate here.',
+                    'type' => 'text',
+                ]);
+            }
+
+            // Sync all company users into General Chat so all roles have access
+            $allUserIds = User::where(function ($q) use ($companyId) {
+                $q->where('company_id', $companyId)->orWhereNull('company_id');
+            })->pluck('id')->toArray();
+
+            $existingParticipantIds = ConversationParticipant::where('conversation_id', $generalConv->id)
+                ->pluck('user_id')
+                ->toArray();
+
+            $missingIds = array_diff($allUserIds, $existingParticipantIds);
+            if (!empty($missingIds)) {
+                $records = [];
+                $now = now();
+                foreach ($missingIds as $uid) {
+                    $records[] = [
+                        'conversation_id' => $generalConv->id,
+                        'user_id' => $uid,
+                        'role' => 'member',
+                        'is_pinned' => true,
+                        'is_muted' => false,
+                        'created_at' => $now,
+                        'updated_at' => $now,
+                    ];
+                }
+                ConversationParticipant::insert($records);
+            }
+        } catch (\Throwable $e) {
+            // Log or quietly continue if table not yet migrated
+        }
     }
 
     public function createConversation(User $user, array $data)
@@ -179,8 +246,8 @@ class ChatService
 
         $messages = Message::where('conversation_id', $conversationId)
             ->with([
-                'sender:id,name,avatar,role',
-                'parent.sender:id,name',
+                'sender.department',
+                'parent.sender.department',
                 'attachments',
                 'reactions.user:id,name',
             ])
@@ -204,6 +271,7 @@ class ChatService
                         'name' => $msg->sender->name,
                         'avatar' => $msg->sender->avatar,
                         'role' => $msg->sender->role,
+                        'department' => $msg->sender->department_name ?? ($msg->sender->role ?? 'General'),
                     ],
                     'message' => $msg->body,
                     'type' => $msg->type,
@@ -212,7 +280,10 @@ class ChatService
                     'reply_to' => $msg->parent ? [
                         'id' => $msg->parent->id,
                         'message' => $msg->parent->body,
-                        'user' => [ 'name' => $msg->parent->sender?->name ?? 'User' ],
+                        'user' => [
+                            'name' => $msg->parent->sender?->name ?? 'User',
+                            'department' => $msg->parent->sender?->department_name ?? ($msg->parent->sender?->role ?? 'General'),
+                        ],
                     ] : null,
                     'attachments' => $msg->attachments->map(fn($a) => [
                         'id' => $a->id,
@@ -275,7 +346,43 @@ class ChatService
                 ->where('user_id', $user->id)
                 ->update(['last_read_message_id' => $msg->id]);
 
-            return $msg->load(['sender', 'attachments', 'parent.sender']);
+            $msg->load(['sender.department', 'attachments', 'parent.sender.department']);
+
+            return [
+                'id' => $msg->id,
+                'conversation_id' => $msg->conversation_id,
+                'user_id' => $msg->user_id,
+                'user' => [
+                    'id' => $msg->sender->id,
+                    'name' => $msg->sender->name,
+                    'avatar' => $msg->sender->avatar,
+                    'role' => $msg->sender->role,
+                    'department' => $msg->sender->department_name ?? ($msg->sender->role ?? 'General'),
+                ],
+                'message' => $msg->body,
+                'type' => $msg->type,
+                'is_edited' => false,
+                'is_pinned' => false,
+                'reply_to' => $msg->parent ? [
+                    'id' => $msg->parent->id,
+                    'message' => $msg->parent->body,
+                    'user' => [
+                        'name' => $msg->parent->sender?->name ?? 'User',
+                        'department' => $msg->parent->sender?->department_name ?? ($msg->parent->sender?->role ?? 'General'),
+                    ],
+                ] : null,
+                'attachments' => $msg->attachments->map(fn($a) => [
+                    'id' => $a->id,
+                    'file_name' => $a->file_name,
+                    'file_path' => $a->file_path,
+                    'file_size' => $a->file_size,
+                    'file_type' => $a->file_type,
+                ]),
+                'reactions' => [],
+                'userReactions' => [],
+                'created_at' => $msg->created_at->toIso8601String(),
+                'timestamp' => $msg->created_at->toIso8601String(),
+            ];
         });
     }
 

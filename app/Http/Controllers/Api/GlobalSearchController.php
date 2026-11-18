@@ -5,12 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\CalendarEvent;
 use App\Models\Conversation;
-use App\Models\Email;
-use App\Models\FileItem;
-use App\Models\Note;
 use App\Models\Task;
 use App\Models\User;
-use App\Models\WorkflowRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -25,11 +21,7 @@ class GlobalSearchController extends Controller
                 'data' => [
                     'tasks' => [],
                     'chat' => [],
-                    'emails' => [],
-                    'files' => [],
-                    'notes' => [],
                     'events' => [],
-                    'workflows' => [],
                     'contacts' => [],
                 ],
             ]);
@@ -73,53 +65,7 @@ class GlobalSearchController extends Controller
                 'link' => '/app/applications/chat',
             ]);
 
-        // 3. Emails
-        $emails = Email::where('company_id', $companyId)
-            ->where(function ($q) use ($query) {
-                $q->where('subject', 'like', "%{$query}%")
-                    ->orWhere('from_name', 'like', "%{$query}%")
-                    ->orWhere('body_text', 'like', "%{$query}%");
-            })
-            ->take(5)
-            ->get(['id', 'subject', 'from_name', 'folder'])
-            ->map(fn($e) => [
-                'id' => $e->id,
-                'title' => $e->subject,
-                'subtitle' => 'From: ' . $e->from_name . ' • ' . ucfirst($e->folder),
-                'category' => 'Email',
-                'link' => '/app/applications/email',
-            ]);
-
-        // 4. Files
-        $files = FileItem::where('company_id', $companyId)
-            ->where('name', 'like', "%{$query}%")
-            ->take(5)
-            ->get(['id', 'name', 'file_type', 'file_size'])
-            ->map(fn($f) => [
-                'id' => $f->id,
-                'title' => $f->name,
-                'subtitle' => strtoupper($f->file_type) . ' • ' . round($f->file_size / 1024) . ' KB',
-                'category' => 'Files',
-                'link' => '/app/applications/files',
-            ]);
-
-        // 5. Notes
-        $notes = Note::where('company_id', $companyId)
-            ->where(function ($q) use ($query) {
-                $q->where('title', 'like', "%{$query}%")
-                    ->orWhere('content', 'like', "%{$query}%");
-            })
-            ->take(5)
-            ->get(['id', 'title', 'content'])
-            ->map(fn($n) => [
-                'id' => $n->id,
-                'title' => $n->title,
-                'subtitle' => substr(strip_tags($n->content ?: ''), 0, 60) . '...',
-                'category' => 'Notes',
-                'link' => '/app/applications/notes',
-            ]);
-
-        // 6. Calendar Events
+        // 3. Calendar Events
         $events = CalendarEvent::where('company_id', $companyId)
             ->where(function ($q) use ($query) {
                 $q->where('title', 'like', "%{$query}%")
@@ -136,24 +82,7 @@ class GlobalSearchController extends Controller
                 'link' => '/app/applications/calendar',
             ]);
 
-        // 7. Workflow Requests
-        $workflows = WorkflowRequest::where('company_id', $companyId)
-            ->where(function ($q) use ($query) {
-                $q->where('title', 'like', "%{$query}%")
-                    ->orWhere('reference_number', 'like', "%{$query}%")
-                    ->orWhere('module', 'like', "%{$query}%");
-            })
-            ->take(5)
-            ->get(['id', 'reference_number', 'title', 'status', 'module'])
-            ->map(fn($w) => [
-                'id' => $w->id,
-                'title' => $w->reference_number . ' - ' . $w->title,
-                'subtitle' => $w->module . ' • ' . ucfirst($w->status),
-                'category' => 'Workflows',
-                'link' => '/app/applications/workflows',
-            ]);
-
-        // 8. Contacts
+        // 4. Contacts / Team
         $contacts = User::where('company_id', $companyId)
             ->where(function ($q) use ($query) {
                 $q->where('name', 'like', "%{$query}%")
@@ -167,7 +96,7 @@ class GlobalSearchController extends Controller
                 'title' => $u->name,
                 'subtitle' => $u->role . ' • ' . $u->email,
                 'category' => 'Contacts',
-                'link' => '/app/applications/calls',
+                'link' => '/app/system/users',
             ]);
 
         return response()->json([
@@ -175,13 +104,10 @@ class GlobalSearchController extends Controller
             'data' => [
                 'tasks' => $tasks,
                 'chat' => $conversations,
-                'emails' => $emails,
-                'files' => $files,
-                'notes' => $notes,
                 'events' => $events,
-                'workflows' => $workflows,
                 'contacts' => $contacts,
             ],
         ]);
     }
 }
+

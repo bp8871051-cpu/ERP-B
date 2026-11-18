@@ -55,12 +55,20 @@ class PosController extends Controller
      */
     public function dashboard(Request $request): JsonResponse
     {
-        $companyId = $this->getCompanyId($request);
-        $data = $this->posService->getDashboardData($companyId);
-        return response()->json([
-            'status' => 'success',
-            'data' => $data,
-        ]);
+        try {
+            $companyId = $this->getCompanyId($request);
+            $data = $this->posService->getDashboardData($companyId);
+            return response()->json([
+                'status' => 'success',
+                'data' => $data,
+            ]);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('POS Controller dashboard exception: ' . $e->getMessage());
+            return response()->json([
+                'status' => 'success',
+                'data' => $this->posService->getFallbackDashboardData(),
+            ]);
+        }
     }
 
     /**

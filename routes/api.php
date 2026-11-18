@@ -2,18 +2,14 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CalendarController;
-use App\Http\Controllers\Api\CallController;
 use App\Http\Controllers\Api\ChatController;
 use App\Http\Controllers\Api\CrmController;
 use App\Http\Controllers\Api\DashboardController;
-use App\Http\Controllers\Api\EmailController;
-use App\Http\Controllers\Api\FileController;
 use App\Http\Controllers\Api\FinanceController;
 use App\Http\Controllers\Api\GlobalSearchController;
 use App\Http\Controllers\Api\HrmController;
 use App\Http\Controllers\Api\InventoryController;
 use App\Http\Controllers\Api\LayoutPreferenceController;
-use App\Http\Controllers\Api\NoteController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\PosController;
 use App\Http\Controllers\Api\ProcurementController;
@@ -22,7 +18,6 @@ use App\Http\Controllers\Api\PurchaseController;
 use App\Http\Controllers\Api\SalesController;
 use App\Http\Controllers\Api\SupportController;
 use App\Http\Controllers\Api\TaskController;
-use App\Http\Controllers\Api\WorkflowController;
 use App\Http\Controllers\Api\Crm\CrmDashboardController;
 use App\Http\Controllers\Api\Crm\CrmContactController;
 use App\Http\Controllers\Api\Crm\CrmLeadController;
@@ -38,12 +33,15 @@ use App\Http\Controllers\Api\DocumentController;
 use App\Http\Controllers\Api\MembershipController;
 use App\Http\Controllers\Api\SystemController;
 use App\Http\Controllers\Api\SettingsController;
+use App\Http\Controllers\Api\BackupController;
+use App\Http\Controllers\Api\AdvancePaymentController;
 use App\Http\Controllers\Api\UiController;
 use App\Http\Controllers\Api\HelpController;
 use App\Http\Controllers\Api\ServiceEngineerController;
 use App\Http\Controllers\Api\StoreExecutiveController;
 use App\Http\Controllers\Api\QualityControlController;
 use App\Http\Controllers\Api\ProjectEngineerController;
+use App\Http\Controllers\Api\LicensingManagerController;
 use Illuminate\Support\Facades\Route;
 
 // Public authentication and metadata routes
@@ -101,51 +99,16 @@ $registerAppRoutes = function () {
     Route::post('/chat/messages/{id}/reaction', [ChatController::class, 'reaction']);
     Route::post('/chat/messages/{id}/pin', [ChatController::class, 'pin']);
     Route::post('/chat/messages/{id}/read', [ChatController::class, 'read']);
+    Route::get('/chat/users', [ChatController::class, 'users']);
 
-    // 2. CALLS MODULE
-    Route::get('/calls', [CallController::class, 'index']);
-    Route::post('/calls', [CallController::class, 'store']);
-    Route::get('/calls/{id}', [CallController::class, 'show']);
-    Route::put('/calls/{id}', [CallController::class, 'update']);
-
-    // 3. CALENDAR MODULE
+    // 2. CALENDAR MODULE
     Route::get('/calendar/events', [CalendarController::class, 'index']);
     Route::post('/calendar/events', [CalendarController::class, 'store']);
     Route::get('/calendar/events/{id}', [CalendarController::class, 'show']);
     Route::put('/calendar/events/{id}', [CalendarController::class, 'update']);
     Route::delete('/calendar/events/{id}', [CalendarController::class, 'destroy']);
 
-    // 4. EMAIL MODULE
-    Route::get('/emails', [EmailController::class, 'index']);
-    Route::get('/emails/{id}', [EmailController::class, 'show']);
-    Route::post('/emails', [EmailController::class, 'store']);
-    Route::post('/emails/{id}/reply', [EmailController::class, 'reply']);
-    Route::post('/emails/{id}/forward', [EmailController::class, 'forward']);
-    Route::put('/emails/{id}/read', [EmailController::class, 'toggleRead']);
-    Route::put('/emails/{id}/star', [EmailController::class, 'toggleStar']);
-    Route::delete('/emails/{id}', [EmailController::class, 'destroy']);
-
-    // 5. FILE MANAGER MODULE
-    Route::get('/files', [FileController::class, 'index']);
-    Route::post('/files/upload', [FileController::class, 'upload']);
-    Route::post('/files/folders', [FileController::class, 'createFolder']);
-    Route::put('/files/{id}', [FileController::class, 'update']);
-    Route::delete('/files/{id}', [FileController::class, 'destroy']);
-    Route::delete('/files/folders/{id}', [FileController::class, 'destroyFolder']);
-    Route::get('/files/{id}/download', [FileController::class, 'download']);
-    Route::post('/files/{id}/share', [FileController::class, 'share']);
-
-    // 6. NOTES MODULE
-    Route::get('/notes', [NoteController::class, 'index']);
-    Route::post('/notes', [NoteController::class, 'store']);
-    Route::get('/notes/{id}', [NoteController::class, 'show']);
-    Route::put('/notes/{id}', [NoteController::class, 'update']);
-    Route::delete('/notes/{id}', [NoteController::class, 'destroy']);
-    Route::put('/notes/{id}/pin', [NoteController::class, 'togglePin']);
-    Route::put('/notes/{id}/favorite', [NoteController::class, 'toggleFavorite']);
-    Route::put('/notes/{id}/archive', [NoteController::class, 'toggleArchive']);
-
-    // 7. TO DO / TASK MODULE
+    // 3. TO DO / TASK MODULE
     Route::get('/tasks', [TaskController::class, 'index']);
     Route::post('/tasks', [TaskController::class, 'store']);
     Route::get('/tasks/{id}', [TaskController::class, 'show']);
@@ -153,18 +116,6 @@ $registerAppRoutes = function () {
     Route::delete('/tasks/{id}', [TaskController::class, 'destroy']);
     Route::post('/tasks/{id}/comments', [TaskController::class, 'comments']);
     Route::post('/tasks/{taskId}/checklists/{checklistId}/toggle', [TaskController::class, 'toggleChecklist']);
-
-    // 8. WORKFLOW & APPROVALS MODULE
-    Route::get('/workflows', [WorkflowController::class, 'index']);
-    Route::post('/workflows', [WorkflowController::class, 'store']);
-    Route::put('/workflows/{id}', [WorkflowController::class, 'update']);
-    Route::delete('/workflows/{id}', [WorkflowController::class, 'destroy']);
-    Route::get('/workflow-requests', [WorkflowController::class, 'index']);
-    Route::post('/workflow-requests', [WorkflowController::class, 'createRequest']);
-    Route::post('/workflow-requests/{id}/approve', [WorkflowController::class, 'approve']);
-    Route::post('/workflow-requests/{id}/reject', [WorkflowController::class, 'reject']);
-    Route::post('/workflow-requests/{id}/request-changes', [WorkflowController::class, 'requestChanges']);
-    Route::post('/workflow-requests/{id}/comments', [WorkflowController::class, 'addComment']);
 
     // NOTIFICATIONS MODULE
     Route::get('/notifications', [NotificationController::class, 'index']);
@@ -432,8 +383,33 @@ $registerAppRoutes = function () {
 
         // Reports
         Route::get('/reports', [FinanceController::class, 'reports']);
+
+        // Advance Payments & Management
+        Route::get('/advances', [AdvancePaymentController::class, 'index']);
+        Route::post('/advances', [AdvancePaymentController::class, 'store']);
+        Route::get('/advances/meta', [AdvancePaymentController::class, 'meta']);
+        Route::get('/advances/{id}', [AdvancePaymentController::class, 'show']);
+        Route::put('/advances/{id}', [AdvancePaymentController::class, 'update']);
+        Route::delete('/advances/{id}', [AdvancePaymentController::class, 'destroy']);
+        Route::post('/advances/{id}/status', [AdvancePaymentController::class, 'updateStatus']);
+        Route::post('/advances/{id}/disburse', [AdvancePaymentController::class, 'disburse']);
     };
-    Route::prefix('finance')->middleware('permission:finance.view')->group($financeRoutes);
+    Route::prefix('finance')->group(function () use ($financeRoutes) {
+        // Allow all roles access to advance payments and site expenses queries
+        Route::get('/advances', [AdvancePaymentController::class, 'index']);
+        Route::post('/advances', [AdvancePaymentController::class, 'store']);
+        Route::get('/advances/meta', [AdvancePaymentController::class, 'meta']);
+        Route::get('/advances/{id}', [AdvancePaymentController::class, 'show']);
+        Route::put('/advances/{id}', [AdvancePaymentController::class, 'update']);
+        Route::delete('/advances/{id}', [AdvancePaymentController::class, 'destroy']);
+        Route::post('/advances/{id}/status', [AdvancePaymentController::class, 'updateStatus']);
+        Route::post('/advances/{id}/disburse', [AdvancePaymentController::class, 'disburse']);
+        Route::get('/expense-categories', [FinanceController::class, 'expenseCategories']);
+        Route::get('/expenses', [FinanceController::class, 'expenses']);
+        Route::post('/expenses', [FinanceController::class, 'storeExpense']);
+
+        Route::middleware('permission:finance.view')->group($financeRoutes);
+    });
 
     // ==========================================
     // ENTERPRISE HRM MODULE ROUTES
@@ -450,8 +426,10 @@ $registerAppRoutes = function () {
 
         // Departments & Designations
         Route::get('/departments', [HrmController::class, 'departments']);
+        Route::get('/unavailable-users', [HrmController::class, 'unavailableUsers']);
         Route::post('/departments', [HrmController::class, 'storeDepartment']);
         Route::get('/designations', [HrmController::class, 'designations']);
+        Route::get('/roles', [HrmController::class, 'roles']);
         Route::post('/designations', [HrmController::class, 'storeDesignation']);
 
         // Attendance
@@ -465,7 +443,9 @@ $registerAppRoutes = function () {
         Route::post('/leave', [HrmController::class, 'storeLeave']);
         Route::post('/leave/{id}/approve', [HrmController::class, 'approveLeave']);
         Route::post('/leave/{id}/reject', [HrmController::class, 'rejectLeave']);
+        Route::delete('/leave/{id}', [HrmController::class, 'deleteLeave']);
         Route::get('/leave/balances', [HrmController::class, 'leaveBalances']);
+        Route::get('/leave/types', [HrmController::class, 'leaveTypes']);
 
         // Holidays
         Route::get('/holidays', [HrmController::class, 'holidays']);
@@ -497,7 +477,21 @@ $registerAppRoutes = function () {
         // HR Analytics
         Route::get('/analytics', [HrmController::class, 'analytics']);
     };
-    Route::prefix('hrm')->middleware('permission:hrm.view')->group($hrmRoutes);
+    Route::prefix('hrm')->group(function () use ($hrmRoutes) {
+        // Attendance Check-in/out and Leave Management available for all authenticated employee roles
+        Route::get('/leave', [HrmController::class, 'leave']);
+        Route::post('/leave', [HrmController::class, 'storeLeave']);
+        Route::post('/leave/{id}/approve', [HrmController::class, 'approveLeave']);
+        Route::post('/leave/{id}/reject', [HrmController::class, 'rejectLeave']);
+        Route::delete('/leave/{id}', [HrmController::class, 'deleteLeave']);
+        Route::get('/leave/balances', [HrmController::class, 'leaveBalances']);
+        Route::get('/leave/types', [HrmController::class, 'leaveTypes']);
+        Route::get('/employees', [HrmController::class, 'employees']);
+        Route::get('/departments', [HrmController::class, 'departments']);
+
+        // Other HRM admin routes protected by hrm.view
+        Route::middleware('permission:hrm.view')->group($hrmRoutes);
+    });
 
     // ==========================================
     // ENTERPRISE CRM MODULE ROUTES
@@ -517,15 +511,24 @@ $registerAppRoutes = function () {
 
         // Leads
         Route::get('/leads/export', [CrmLeadController::class, 'export']);
+        Route::post('/leads/import', [CrmLeadController::class, 'import']);
         Route::get('/leads', [CrmLeadController::class, 'index']);
         Route::post('/leads', [CrmLeadController::class, 'store']);
+        Route::post('/leads/check-duplicate', [CrmLeadController::class, 'checkDuplicate']);
         Route::get('/leads/{id}', [CrmLeadController::class, 'show']);
         Route::put('/leads/{id}', [CrmLeadController::class, 'update']);
         Route::delete('/leads/{id}', [CrmLeadController::class, 'destroy']);
         Route::post('/leads/{id}/convert', [CrmLeadController::class, 'convert']);
         Route::post('/leads/{id}/score', [CrmLeadController::class, 'score']);
         Route::post('/leads/{id}/assign', [CrmLeadController::class, 'assign']);
+        Route::post('/leads/{id}/request-reassign', [CrmLeadController::class, 'requestReassign']);
         Route::get('/assignees', [CrmLeadController::class, 'assignees']);
+
+        // Duplicate Lead Requests
+        Route::get('/duplicate-leads', [CrmLeadController::class, 'duplicateRequests']);
+        Route::post('/duplicate-leads/request', [CrmLeadController::class, 'requestDuplicate']);
+        Route::post('/duplicate-leads/{id}/approve', [CrmLeadController::class, 'approveDuplicate']);
+        Route::post('/duplicate-leads/{id}/reject', [CrmLeadController::class, 'rejectDuplicate']);
 
         // Lead Sources
         Route::get('/lead-sources', function () {
@@ -754,6 +757,12 @@ $registerAppRoutes = function () {
         Route::post('/webhooks', [SettingsController::class, 'storeWebhook']);
         Route::delete('/webhooks/{id}', [SettingsController::class, 'deleteWebhook']);
         Route::get('/sessions', [SettingsController::class, 'sessions']);
+
+        // System & Software Database Backups (Super Admin)
+        Route::get('/backups', [BackupController::class, 'index']);
+        Route::post('/backups', [BackupController::class, 'create']);
+        Route::get('/backups/{filename}/download', [BackupController::class, 'download']);
+        Route::delete('/backups/{filename}', [BackupController::class, 'destroy']);
     };
     Route::prefix('system')->middleware('permission:users.view')->group($systemRoutes);
 
@@ -852,7 +861,17 @@ Route::middleware('auth:sanctum')->group(function () use ($registerAppRoutes) {
             Route::post('/enter-timesheet', [ProjectEngineerController::class, 'enterTimesheet']);
             Route::post('/submit-technical-review', [ProjectEngineerController::class, 'submitTechnicalReview']);
         });
-    };
+
+        // 5. Licensing Manager
+        Route::prefix('licensing-manager')->group(function () {
+            Route::get('/dashboard', [LicensingManagerController::class, 'dashboard']);
+            Route::post('/licenses', [LicensingManagerController::class, 'storeLicense']);
+            Route::post('/allocate-seat', [LicensingManagerController::class, 'allocateSeat']);
+            Route::put('/licenses/{id}/renew', [LicensingManagerController::class, 'renewLicense']);
+            Route::put('/licenses/{id}/status', [LicensingManagerController::class, 'updateStatus']);
+        });
+
+        };
 
     $registerRoleDashboardRoutes();
     Route::prefix('v1')->group($registerRoleDashboardRoutes);

@@ -29,6 +29,22 @@ class CheckPermission
             return $next($request);
         }
 
+        // Allow all active employee roles to access general self-service features:
+        // 1. Leave application & tracking (read/submit leave requests and view leave types)
+        // 2. Advance payment requisition & tracking
+        // 3. Site expense recording & submission
+        $path = $request->path();
+        if (
+            str_contains($path, 'hrm/leave') ||
+            str_contains($path, 'hrm/employees') ||
+            str_contains($path, 'hrm/departments') ||
+            str_contains($path, 'finance/advances') ||
+            str_contains($path, 'finance/expenses') ||
+            str_contains($path, 'finance/expense-categories')
+        ) {
+            return $next($request);
+        }
+
         // Check if user has the requested permission
         if ($user->hasPermission($permission)) {
             return $next($request);

@@ -119,6 +119,11 @@ class DeleteRequestService
             'documents' => \App\Models\Document::class,
             'tickets' => \App\Models\Ticket::class,
             'memberships' => \App\Models\Membership::class,
+            'leads' => \App\Models\CrmLead::class,
+            'crm_leads' => \App\Models\CrmLead::class,
+            'deals' => \App\Models\CrmDeal::class,
+            'contacts' => \App\Models\CrmContact::class,
+            'employees' => \App\Models\Employee::class,
         ];
 
         return $map[strtolower($module)] ?? null;

@@ -33,9 +33,14 @@ class ProjectController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $companyId = $request->header('X-Company-ID') ? (int) $request->header('X-Company-ID') : 1;
-        $query = Project::with(['client', 'members.user'])
-            ->where('company_id', $companyId);
+        $companyId = $request->header('X-Company-ID') ? (int) $request->header('X-Company-ID') : ($request->user()?->company_id ?? null);
+        $query = Project::with(['client', 'members.user']);
+        
+        if ($companyId) {
+            $query->where(function ($q) use ($companyId) {
+                $q->where('company_id', $companyId)->orWhereNull('company_id');
+            });
+        }
 
         if ($request->has('status') && $request->status !== 'all') {
             $query->where('status', $request->status);
@@ -49,7 +54,15 @@ class ProjectController extends Controller
             });
         }
 
-        $projects = $query->latest()->paginate($request->get('per_page', 20));
+        if ($request->boolean('all') || $request->get('per_page') === 'all') {
+            $projects = $query->latest()->get();
+            return response()->json([
+                'status' => 'success',
+                'data' => $projects,
+            ]);
+        }
+
+        $projects = $query->latest()->paginate($request->get('per_page', 50));
 
         return response()->json([
             'status' => 'success',

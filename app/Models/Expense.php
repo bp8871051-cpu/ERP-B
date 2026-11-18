@@ -13,9 +13,14 @@ class Expense extends Model
     protected $fillable = [
         'company_id',
         'expense_number',
+        'title',
         'account_id',
         'expense_category_id',
         'vendor_id',
+        'project_id',
+        'site_location',
+        'vendor_number',
+        'receipt_number',
         'category',
         'amount',
         'tax',
@@ -26,8 +31,11 @@ class Expense extends Model
         'reference',
         'description',
         'attachment',
+        'document',
         'notes',
+        'additional_note',
         'status',
+        'is_site_expense',
         'created_by',
         'approved_by',
         'approved_at',
@@ -74,6 +82,11 @@ class Expense extends Model
     public function vendor()
     {
         return $this->belongsTo(Vendor::class);
+    }
+
+    public function project()
+    {
+        return $this->belongsTo(Project::class);
     }
 
     public function creator()

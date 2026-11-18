@@ -123,4 +123,31 @@ class ChatController extends Controller
             'data' => $result,
         ]);
     }
+
+    public function users(Request $request): JsonResponse
+    {
+        $currentUser = $request->user();
+        $companyId = $currentUser->company_id ?: 1;
+
+        $users = \App\Models\User::where(function ($q) use ($companyId) {
+                $q->where('company_id', $companyId)->orWhereNull('company_id');
+            })
+            ->where('id', '!=', $currentUser->id)
+            ->with(['department', 'employee'])
+            ->get()
+            ->map(fn($u) => [
+                'id' => $u->id,
+                'name' => $u->name,
+                'email' => $u->email,
+                'avatar' => $u->avatar,
+                'role' => $u->role,
+                'department' => $u->department_name,
+                'is_online' => (bool) ($u->is_active ?? true),
+            ]);
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $users,
+        ]);
+    }
 }

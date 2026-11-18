@@ -1008,6 +1008,9 @@ class DatabaseSeeder extends Seeder
         // Seed Inventory module data
         $this->call(InventorySeeder::class);
 
+        // Canonical 14 Enterprise Roles Seeder
+        $this->call(CanonicalRolesSeeder::class);
+
         // Seed Enterprise CRM module data
         // $this->call(EnterpriseCrmSeeder::class);
 

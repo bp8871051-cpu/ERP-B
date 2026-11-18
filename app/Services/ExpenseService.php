@@ -29,20 +29,37 @@ class ExpenseService
      */
     public function listExpenses(array $filters = [], ?int $companyId = null)
     {
-        $query = Expense::with(['categoryItem', 'vendor', 'account', 'creator', 'approver', 'attachments']);
+        $query = Expense::with(['categoryItem', 'vendor', 'account', 'creator', 'approver', 'attachments', 'project']);
 
         if ($companyId) {
             $query->where('company_id', $companyId);
+        }
+
+        if (isset($filters['is_site_expense'])) {
+            $query->where('is_site_expense', filter_var($filters['is_site_expense'], FILTER_VALIDATE_BOOLEAN));
+        }
+
+        if (!empty($filters['project_id'])) {
+            $query->where('project_id', $filters['project_id']);
+        }
+
+        if (!empty($filters['site_location'])) {
+            $query->where('site_location', 'like', "%{$filters['site_location']}%");
         }
 
         if (!empty($filters['search'])) {
             $s = $filters['search'];
             $query->where(function ($q) use ($s) {
                 $q->where('expense_number', 'like', "%{$s}%")
+                    ->orWhere('title', 'like', "%{$s}%")
                     ->orWhere('description', 'like', "%{$s}%")
                     ->orWhere('category', 'like', "%{$s}%")
                     ->orWhere('reference', 'like', "%{$s}%")
-                    ->orWhereHas('vendor', fn ($v) => $v->where('name', 'like', "%{$s}%"));
+                    ->orWhere('receipt_number', 'like', "%{$s}%")
+                    ->orWhere('vendor_number', 'like', "%{$s}%")
+                    ->orWhere('site_location', 'like', "%{$s}%")
+                    ->orWhereHas('vendor', fn ($v) => $v->where('name', 'like', "%{$s}%"))
+                    ->orWhereHas('project', fn ($p) => $p->where('name', 'like', "%{$s}%"));
             });
         }
 
@@ -62,8 +79,14 @@ class ExpenseService
             $query->where('payment_method', $filters['payment_method']);
         }
 
-        if (!empty($filters['start_date']) && !empty($filters['end_date'])) {
-            $query->whereBetween('expense_date', [$filters['start_date'], $filters['end_date']]);
+        if (!empty($filters['date_from']) || !empty($filters['start_date'])) {
+            $from = $filters['date_from'] ?? $filters['start_date'];
+            $query->where('expense_date', '>=', $from);
+        }
+
+        if (!empty($filters['date_to']) || !empty($filters['end_date'])) {
+            $to = $filters['date_to'] ?? $filters['end_date'];
+            $query->where('expense_date', '<=', $to);
         }
 
         $sortField = $filters['sort_by'] ?? 'expense_date';
@@ -98,8 +121,13 @@ class ExpenseService
         return Expense::create([
             'company_id' => $companyId,
             'expense_number' => $expenseNumber,
+            'title' => $data['title'] ?? null,
             'expense_category_id' => $data['expense_category_id'] ?? null,
             'vendor_id' => $data['vendor_id'] ?? null,
+            'project_id' => $data['project_id'] ?? null,
+            'site_location' => $data['site_location'] ?? null,
+            'vendor_number' => $data['vendor_number'] ?? null,
+            'receipt_number' => $data['receipt_number'] ?? null,
             'account_id' => $data['account_id'] ?? null,
             'category' => $categoryName,
             'amount' => $amount,
@@ -111,7 +139,10 @@ class ExpenseService
             'reference' => $data['reference'] ?? null,
             'description' => $data['description'] ?? null,
             'attachment' => $data['attachment'] ?? null,
+            'document' => $data['document'] ?? null,
             'notes' => $data['notes'] ?? null,
+            'additional_note' => $data['additional_note'] ?? null,
+            'is_site_expense' => $data['is_site_expense'] ?? false,
             'status' => $data['status'] ?? 'submitted', // draft, submitted, approved, paid, rejected
             'created_by' => auth()->id() ?? 1,
         ]);

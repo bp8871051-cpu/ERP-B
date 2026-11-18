@@ -198,19 +198,32 @@ class CrmContactController extends Controller
     public function export(Request $request)
     {
         $user = $request->user();
-        $companyId = $request->header('X-Company-ID') ? (int) $request->header('X-Company-ID') : ($user?->company_id ?? 1);
+        if (!$user || !$user->canImportExport()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Access Denied: Only Super Admin and Sales Manager are authorized to export files.',
+            ], 403);
+        }
+        $companyId = $request->header('X-Company-ID') ? (int) $request->header('X-Company-ID') : ($user->company_id ?? 1);
         return $this->reportService->exportContactsCsv($companyId, $user);
     }
 
     public function import(Request $request): JsonResponse
     {
+        $user = $request->user();
+        if (!$user || !$user->canImportExport()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Access Denied: Only Super Admin and Sales Manager are authorized to import files.',
+            ], 403);
+        }
+
         $request->validate([
             'rows' => 'required|array',
         ]);
 
-        $user = $request->user();
-        $companyId = $request->header('X-Company-ID') ? (int) $request->header('X-Company-ID') : ($user?->company_id ?? 1);
-        $result = $this->reportService->importContacts($request->input('rows'), $companyId, $user?->id);
+        $companyId = $request->header('X-Company-ID') ? (int) $request->header('X-Company-ID') : ($user->company_id ?? 1);
+        $result = $this->reportService->importContacts($request->input('rows'), $companyId, $user->id);
 
         return response()->json([
             'status' => 'success',

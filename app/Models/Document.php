@@ -11,11 +11,14 @@ class Document extends Model
 
     protected $fillable = [
         'company_id',
+        'project_id',
         'folder_id',
         'category_id',
         'department_id',
         'owner_id',
         'uploaded_by',
+        'checker_id',
+        'verified_by',
         'document_number',
         'document_name',
         'document_type',
@@ -28,6 +31,13 @@ class Document extends Model
         'current_version',
         'confidentiality',
         'status',
+        'priority',
+        'verification_status',
+        'verification_notes',
+        'verified_at',
+        'revision_reason',
+        'rejection_reason',
+        'checklist',
         'issue_date',
         'expiry_date',
         'description',
@@ -64,14 +74,19 @@ class Document extends Model
         'file_size' => 'integer',
         'issue_date' => 'date',
         'expiry_date' => 'date',
+        'verified_at' => 'datetime',
+        'checklist' => 'array',
     ];
 
     public function company() { return $this->belongsTo(Company::class); }
+    public function project() { return $this->belongsTo(Project::class, 'project_id'); }
     public function folder() { return $this->belongsTo(DocumentFolder::class, 'folder_id'); }
     public function category() { return $this->belongsTo(DocumentCategory::class, 'category_id'); }
     public function department() { return $this->belongsTo(Department::class); }
     public function owner() { return $this->belongsTo(User::class, 'owner_id'); }
     public function uploader() { return $this->belongsTo(User::class, 'uploaded_by'); }
+    public function checker() { return $this->belongsTo(User::class, 'checker_id'); }
+    public function verifier() { return $this->belongsTo(User::class, 'verified_by'); }
     public function versions() { return $this->hasMany(DocumentVersion::class); }
     public function permissions() { return $this->hasMany(DocumentPermission::class); }
     public function shares() { return $this->hasMany(DocumentShare::class); }

@@ -301,13 +301,14 @@ class ProjectEngineerController extends Controller
         ]);
 
         foreach ($validated['items'] as $item) {
-            $prod = Product::find($item['product_id']);
+            $prod = Product::with('unit')->find($item['product_id']);
+            $unitName = is_object($prod?->unit) ? ($prod->unit->short_name ?? $prod->unit->name ?? 'pcs') : ($prod?->unit ?? 'pcs');
             MaterialRequestItem::create([
                 'material_request_id' => $materialRequest->id,
                 'product_id' => $item['product_id'],
                 'quantity_requested' => $item['quantity'],
                 'quantity_issued' => 0,
-                'unit' => $prod->unit ?? 'pcs',
+                'unit' => $unitName,
                 'notes' => $item['notes'] ?? null,
             ]);
         }

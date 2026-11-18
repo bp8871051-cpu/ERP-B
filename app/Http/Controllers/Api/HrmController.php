@@ -8,6 +8,10 @@ use App\Models\Candidate;
 use App\Models\Department;
 use App\Models\Designation;
 use App\Models\Employee;
+use App\Models\User;
+use App\Models\Role;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 use App\Models\Holiday;
 use App\Models\JobPosition;
 use App\Models\LeaveRequest;
@@ -105,7 +109,14 @@ class HrmController extends Controller
             $query->where('status', $status);
         }
 
-        $employees = $query->paginate($request->get('per_page', 15));
+        // Return all employees when explicitly requested (e.g., dropdowns/selects) or order by latest
+        if ($request->boolean('all') || $request->get('per_page') === 'all') {
+            $employees = $query->orderBy('first_name')->get();
+            return response()->json(['status' => 'success', 'data' => $employees]);
+        }
+
+        $perPage = min((int) $request->get('per_page', 15), 500);
+        $employees = $query->latest()->paginate($perPage);
         return response()->json(['status' => 'success', 'data' => $employees]);
     }
 
@@ -145,7 +156,17 @@ class HrmController extends Controller
 
         $companyId = $this->getCompanyId($request);
         $validated['company_id'] = $companyId;
-        $validated['employee_code'] = 'EMP-' . str_pad((string) (Employee::where('company_id', $companyId)->count() + 1), 4, '0', STR_PAD_LEFT);
+
+        // Auto-generate unique employee_code or respect submitted one
+        if (!empty($request->employee_code)) {
+            $code = $request->employee_code;
+            if (Employee::withTrashed()->where('employee_code', $code)->exists()) {
+                $code = 'EMP-' . str_pad((string) ((int) (Employee::withTrashed()->max('id') ?? 0) + 1), 4, '0', STR_PAD_LEFT);
+            }
+            $validated['employee_code'] = $code;
+        } else {
+            $validated['employee_code'] = 'EMP-' . str_pad((string) ((int) (Employee::withTrashed()->max('id') ?? 0) + 1), 4, '0', STR_PAD_LEFT);
+        }
 
         $employee = Employee::create($validated);
 
@@ -162,7 +183,67 @@ class HrmController extends Controller
             'effective_date' => Carbon::today(),
         ]);
 
-        return response()->json(['status' => 'success', 'message' => 'Employee created successfully', 'data' => $employee->fresh(['department', 'designation'])], 201);
+        // Auto-provision User Account for System & User Management
+        $createdUser = null;
+        if (!empty($request->password) || $request->boolean('create_user_account', true)) {
+            $userPassword = !empty($request->password) ? $request->password : 'Welcome@123';
+            
+            // Map role from request, or default intelligently from Department name
+            $userRole = !empty($request->role) ? $request->role : null;
+            if (!$userRole && !empty($validated['department_id'])) {
+                $dep = Department::find($validated['department_id']);
+                if ($dep) {
+                    $depName = strtolower($dep->name);
+                    if (str_contains($depName, 'hr') || str_contains($depName, 'human')) $userRole = 'HR Manager';
+                    elseif (str_contains($depName, 'store') || str_contains($depName, 'warehouse')) $userRole = 'Store Executive';
+                    elseif (str_contains($depName, 'service')) $userRole = 'Service Engineer';
+                    elseif (str_contains($depName, 'licens')) $userRole = 'Licensing Manager';
+                    elseif (str_contains($depName, 'sales')) $userRole = 'Sales Manager';
+                    elseif (str_contains($depName, 'purchase') || str_contains($depName, 'procurement')) $userRole = 'Purchase Manager';
+                    elseif (str_contains($depName, 'doc') || str_contains($depName, 'quality') || str_contains($depName, 'qc')) $userRole = 'Document Manager / Checker';
+                    elseif (str_contains($depName, 'project')) $userRole = 'Project Engineer';
+                }
+            }
+            if (!$userRole) {
+                $userRole = 'Project Engineer';
+            }
+
+            $fullName = trim($validated['first_name'] . ' ' . ($validated['middle_name'] ?? '') . ' ' . $validated['last_name']);
+
+            // Check if user already exists with this email
+            $existingUser = User::where('email', $validated['email'])->first();
+            if (!$existingUser) {
+                $createdUser = User::create([
+                    'company_id' => $companyId,
+                    'department_id' => $validated['department_id'] ?? null,
+                    'name' => $fullName,
+                    'email' => $validated['email'],
+                    'phone' => $validated['phone'] ?? null,
+                    'role' => $userRole,
+                    'is_active' => true,
+                    'password' => Hash::make($userPassword),
+                ]);
+
+                // Link employee to user_id
+                $employee->user_id = $createdUser->id;
+                $employee->save();
+            } else {
+                // Link employee to existing user
+                $employee->user_id = $existingUser->id;
+                $employee->save();
+            }
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Employee created and User account provisioned successfully',
+            'data' => $employee->fresh(['department', 'designation', 'user']),
+            'user' => $createdUser ? [
+                'id' => $createdUser->id,
+                'email' => $createdUser->email,
+                'role' => $createdUser->role,
+            ] : null,
+        ], 201);
     }
 
     public function showEmployee($id): JsonResponse
@@ -226,6 +307,12 @@ class HrmController extends Controller
             ->withCount('employees')
             ->get();
         return response()->json(['status' => 'success', 'data' => $designations]);
+    }
+
+    public function roles(): JsonResponse
+    {
+        $roles = Role::select('id', 'name', 'display_name')->get();
+        return response()->json(['status' => 'success', 'data' => $roles]);
     }
 
     public function storeDesignation(Request $request): JsonResponse
@@ -321,18 +408,38 @@ class HrmController extends Controller
             $query->where('status', $status);
         }
 
-        return response()->json(['status' => 'success', 'data' => $query->latest()->paginate($request->get('per_page', 15))]);
+        // Filter by leave type name (partial match on leave_types.name)
+        if ($leaveType = $request->get('leave_type')) {
+            $query->whereHas('leaveType', function ($q) use ($leaveType) {
+                $q->where('name', 'like', "%{$leaveType}%");
+            });
+        }
+
+        // Filter by date range (start_date)
+        if ($dateFrom = $request->get('date_from')) {
+            $query->where('start_date', '>=', $dateFrom);
+        }
+        if ($dateTo = $request->get('date_to')) {
+            $query->where('end_date', '<=', $dateTo);
+        }
+
+        $perPage = min((int) $request->get('per_page', 15), 500);
+
+        return response()->json([
+            'status' => 'success',
+            'data'   => $query->latest()->paginate($perPage),
+        ]);
     }
 
     public function storeLeave(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'employee_id' => 'required|exists:employees,id',
+            'employee_id'   => 'required|exists:employees,id',
             'leave_type_id' => 'required|exists:leave_types,id',
-            'start_date' => 'required|date',
-            'end_date' => 'required|date',
-            'reason' => 'nullable|string',
-            'attachment' => 'nullable|string',
+            'start_date'    => 'required|date',
+            'end_date'      => 'required|date|after_or_equal:start_date',
+            'reason'        => 'required|string|min:3',
+            'attachment'    => 'nullable|string',
         ]);
 
         $leave = $this->leaveService->submitRequest($validated, $this->getCompanyId($request));
@@ -351,6 +458,40 @@ class HrmController extends Controller
         $leave = LeaveRequest::findOrFail($id);
         $rejected = $this->leaveService->rejectRequest($leave, $request->get('reason'), auth()->id());
         return response()->json(['status' => 'success', 'message' => 'Leave request rejected', 'data' => $rejected]);
+    }
+
+    public function deleteLeave(Request $request, $id): JsonResponse
+    {
+        $leave = LeaveRequest::findOrFail($id);
+
+        // Only allow deletion of pending requests or if admin
+        $user = auth()->user();
+        $isAdmin = in_array($user->role ?? '', ['Super Admin', 'Admin', 'HR Manager']);
+
+        if (!$isAdmin && $leave->status !== 'pending') {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Only pending leave requests can be deleted.',
+            ], 403);
+        }
+
+        $leave->delete();
+
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Leave request deleted successfully.',
+        ]);
+    }
+
+    public function leaveTypes(Request $request): JsonResponse
+    {
+        $types = LeaveType::where(function ($q) use ($request) {
+            if ($cid = $this->getCompanyId($request)) {
+                $q->where('company_id', $cid)->orWhereNull('company_id');
+            }
+        })->orderBy('name')->get();
+
+        return response()->json(['status' => 'success', 'data' => $types]);
     }
 
     public function leaveBalances(Request $request): JsonResponse
@@ -632,5 +773,113 @@ class HrmController extends Controller
     {
         $analytics = $this->analyticsService->getAnalytics($this->getCompanyId($request), $request->all());
         return response()->json(['status' => 'success', 'data' => $analytics]);
+    }
+
+    // ==========================================
+    // UNAVAILABLE USERS (Leave / Inactive / Out-of-office)
+    // ==========================================
+
+    public function unavailableUsers(Request $request): JsonResponse
+    {
+        $companyId = $this->getCompanyId($request);
+        $search = $request->get('search');
+        $statusFilter = $request->get('status'); // all | unavailable | available
+
+        $today = Carbon::today()->toDateString();
+
+        // 1. Get employees with their user account and current leave request
+        $employeesQuery = Employee::where('company_id', $companyId)
+            ->with(['department', 'designation', 'user'])
+            ->with(['leaveRequests' => function ($q) use ($today) {
+                $q->where('status', 'approved')
+                  ->where('end_date', '>=', $today)
+                  ->orderBy('end_date', 'desc');
+            }]);
+
+        if ($search) {
+            $employeesQuery->where(function ($q) use ($search) {
+                $q->where('first_name', 'like', "%{$search}%")
+                  ->orWhere('last_name', 'like', "%{$search}%")
+                  ->orWhere('employee_code', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhereHas('user', fn($uq) => $uq->where('name', 'like', "%{$search}%")->orWhere('role', 'like', "%{$search}%"));
+            });
+        }
+
+        $allEmployees = $employeesQuery->get();
+
+        $records = [];
+        $totalUnavailable = 0;
+        $totalAvailable = 0;
+
+        foreach ($allEmployees as $emp) {
+            $activeLeave = $emp->leaveRequests->first();
+            $isLeaveActive = $activeLeave && ($activeLeave->start_date <= $today && $activeLeave->end_date >= $today);
+            $isInactive = ($emp->status !== 'active') || ($emp->user && !$emp->user->is_active);
+
+            $isUnavailable = $isLeaveActive || $isInactive || ($emp->status === 'on_leave');
+
+            if ($isUnavailable) {
+                $totalUnavailable++;
+            } else {
+                $totalAvailable++;
+            }
+
+            $endDate = null;
+            $unavailabilityReason = null;
+
+            if ($isLeaveActive) {
+                $endDate = $activeLeave->end_date ? Carbon::parse($activeLeave->end_date)->format('Y-m-d') : null;
+                $unavailabilityReason = $activeLeave->reason ?: ($activeLeave->leave_type_id ? 'Approved Leave' : 'On Leave');
+            } elseif ($emp->status === 'on_leave') {
+                $endDate = $activeLeave?->end_date ? Carbon::parse($activeLeave->end_date)->format('Y-m-d') : 'TBD';
+                $unavailabilityReason = 'On Official Leave';
+            } elseif ($isInactive) {
+                $endDate = 'Indefinite';
+                $unavailabilityReason = 'Account Deactivated / Inactive';
+            }
+
+            $item = [
+                'id' => $emp->id,
+                'user_id' => $emp->user_id,
+                'name' => trim(($emp->first_name ?? '') . ' ' . ($emp->last_name ?? '')) ?: ($emp->user?->name ?? 'Unknown'),
+                'email' => $emp->email ?: ($emp->user?->email ?? ''),
+                'employee_code' => $emp->employee_code,
+                'role' => $emp->user?->role ?? ($emp->designation?->name ?? 'Employee'),
+                'department' => $emp->department?->name ?? 'General',
+                'avatar' => $emp->avatar ?: ($emp->user?->avatar ?? null),
+                'status' => $isUnavailable ? 'Unavailable' : 'Available',
+                'reason' => $unavailabilityReason,
+                'end_date' => $endDate,
+                'leave_details' => $activeLeave ? [
+                    'start_date' => $activeLeave->start_date,
+                    'end_date' => $activeLeave->end_date,
+                    'days_count' => $activeLeave->days_count,
+                    'reason' => $activeLeave->reason,
+                ] : null,
+            ];
+
+            // Apply filter
+            if ($statusFilter === 'unavailable' && !$isUnavailable) {
+                continue;
+            }
+            if ($statusFilter === 'available' && $isUnavailable) {
+                continue;
+            }
+
+            $records[] = $item;
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'records' => $records,
+                'metrics' => [
+                    'total_count' => count($allEmployees),
+                    'total_unavailable' => $totalUnavailable,
+                    'total_available' => $totalAvailable,
+                ],
+            ],
+        ]);
     }
 }

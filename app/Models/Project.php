@@ -27,4 +27,5 @@ class Project extends Model
     public function tasks() { return $this->hasMany(Task::class); }
     public function milestones() { return $this->hasMany(Milestone::class); }
     public function timesheets() { return $this->hasMany(Timesheet::class); }
+    public function documents() { return $this->hasMany(Document::class); }
 }

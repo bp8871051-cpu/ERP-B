@@ -15,6 +15,7 @@ class TaskService
     public function getTasks(User $user, ?string $view = 'all', ?string $status = null, ?string $priority = null, ?string $search = null)
     {
         $companyId = $user->company_id ?: 1;
+        $this->rolloverIncompleteTasks($user, $companyId);
 
         $query = Task::where(function ($q) use ($companyId) {
                 $q->where('company_id', $companyId)->orWhereNull('company_id');
@@ -237,5 +238,51 @@ class TaskService
         $chk->is_completed = !$chk->is_completed;
         $chk->save();
         return ['isCompleted' => $chk->is_completed];
+    }
+
+    /**
+     * Automatic weekday task rollover:
+     * - Mon to Tue, Tue to Wed, Wed to Thu, Thu to Fri: incomplete tasks rollover to the next working day.
+     * - Friday incomplete tasks do NOT rollover to Saturday/Sunday (Saturday & Sunday are holidays).
+     * - On Saturday or Sunday, no rollover occurs.
+     * - On Monday, if there were unfinished Friday tasks, they can rollover to Monday.
+     */
+    public function rolloverIncompleteTasks(User $user, int $companyId): void
+    {
+        $now = Carbon::today();
+        $dayOfWeek = $now->dayOfWeek; // 0 = Sunday, 1 = Monday, ..., 5 = Friday, 6 = Saturday
+
+        // Saturday (6) and Sunday (0) are holidays -> no tasks rolled over
+        if ($dayOfWeek === 0 || $dayOfWeek === 6) {
+            return;
+        }
+
+        // Determine the previous working day
+        if ($dayOfWeek >= 2 && $dayOfWeek <= 5) {
+            // Tuesday (2) -> Monday (1)
+            // Wednesday (3) -> Tuesday (2)
+            // Thursday (4) -> Wednesday (3)
+            // Friday (5) -> Thursday (4)
+            $prevWorkingDay = Carbon::today()->subDay();
+        } elseif ($dayOfWeek === 1) {
+            // Monday (1) -> previous working day was Friday (subDays 3)
+            $prevWorkingDay = Carbon::today()->subDays(3);
+        } else {
+            return;
+        }
+
+        // Find incomplete tasks assigned to this user from the previous working day
+        // Status != 'completed' and status != 'cancelled'
+        $incompleteTasks = Task::where('company_id', $companyId)
+            ->where('assigned_to', $user->id)
+            ->whereDate('due_date', $prevWorkingDay)
+            ->whereNotIn('status', ['completed', 'cancelled'])
+            ->get();
+
+        foreach ($incompleteTasks as $task) {
+            // Update due_date to today so it rolls over automatically to today's agenda
+            $task->due_date = $now;
+            $task->save();
+        }
     }
 }
