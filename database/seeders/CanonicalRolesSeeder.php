@@ -78,7 +78,7 @@ class CanonicalRolesSeeder extends Seeder
             'Tally Sales' => [
                 'display_name' => 'Tally Sales',
                 'description' => 'Billing and sales desk specialist handling invoices, POS registers, receipts and Tally accounting reconciliations.',
-                'modules' => ['pos', 'sales', 'finance', 'dashboard'],
+                'modules' => ['pos', 'sales', 'finance', 'crm', 'dashboard'],
                 'demo_email' => 'tallysales@falconerp.com',
                 'demo_name' => 'Nirav Shah',
             ],
