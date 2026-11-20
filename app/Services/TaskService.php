@@ -12,14 +12,12 @@ use Illuminate\Support\Facades\DB;
 
 class TaskService
 {
-    public function getTasks(User $user, ?string $view = 'all', ?string $status = null, ?string $priority = null, ?string $search = null)
+    public function getTasks(User $user, ?string $view = 'all', ?string $status = null, ?string $priority = null, ?string $search = null, ?int $activeCompanyId = null)
     {
-        $companyId = $user->company_id ?: 1;
+        $companyId = $activeCompanyId ?: ($user->company_id ?: 1);
         $this->rolloverIncompleteTasks($user, $companyId);
 
-        $query = Task::where(function ($q) use ($companyId) {
-                $q->where('company_id', $companyId)->orWhereNull('company_id');
-            })
+        $query = Task::where('company_id', $companyId)
             ->with([
                 'assignedUser:id,name,email,avatar,role',
                 'reporter:id,name,email,avatar',
@@ -76,8 +74,10 @@ class TaskService
                 'project' => $t->project ? ['id' => $t->project->id, 'name' => $t->project->name] : null,
                 'startDate' => $t->start_date ? $t->start_date->format('Y-m-d') : null,
                 'dueDate' => $t->due_date ? $t->due_date->format('Y-m-d') : null,
+                'due_date' => $t->due_date ? $t->due_date->format('Y-m-d') : null,
                 'dueDateFormatted' => $t->due_date ? $t->due_date->format('M d, Y') : null,
                 'isOverdue' => $isOverdue,
+                'assigned_to' => $t->assigned_to,
                 'assignee' => $t->assignedUser ? [
                     'id' => $t->assignedUser->id,
                     'name' => $t->assignedUser->name,
@@ -150,7 +150,7 @@ class TaskService
 
     public function createTask(User $user, array $data)
     {
-        $companyId = $user->company_id ?: 1;
+        $companyId = !empty($data['company_id']) ? (int) $data['company_id'] : ($user->company_id ?: 1);
 
         return DB::transaction(function () use ($companyId, $user, $data) {
             $task = Task::create([

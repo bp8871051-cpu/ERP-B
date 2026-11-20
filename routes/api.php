@@ -871,6 +871,19 @@ Route::middleware('auth:sanctum')->group(function () use ($registerAppRoutes) {
             Route::put('/licenses/{id}/status', [LicensingManagerController::class, 'updateStatus']);
         });
 
+        // 6. Field Sales Dashboard & Actions
+        Route::prefix('field-sales')->group(function () {
+            Route::get('/dashboard', [\App\Http\Controllers\Api\FieldSalesController::class, 'dashboard']);
+            Route::post('/record-visit', [\App\Http\Controllers\Api\FieldSalesController::class, 'recordVisit']);
+            Route::post('/quick-lead', [\App\Http\Controllers\Api\FieldSalesController::class, 'quickLead']);
+        });
+
+        // 7. Tally Sales Dashboard & Actions
+        Route::prefix('tally-sales')->group(function () {
+            Route::get('/dashboard', [\App\Http\Controllers\Api\TallySalesController::class, 'dashboard']);
+            Route::post('/record-payment', [\App\Http\Controllers\Api\TallySalesController::class, 'recordPayment']);
+        });
+
         };
 
     $registerRoleDashboardRoutes();

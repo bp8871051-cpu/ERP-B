@@ -13,14 +13,21 @@ class TaskController extends Controller
     {
     }
 
+    private function getCompanyId(Request $request): int
+    {
+        return $request->header('X-Company-ID') ? (int) $request->header('X-Company-ID') : ($request->user()?->company_id ?: 1);
+    }
+
     public function index(Request $request): JsonResponse
     {
+        $companyId = $this->getCompanyId($request);
         $data = $this->taskService->getTasks(
             $request->user(),
             $request->query('view', 'all'),
             $request->query('status'),
             $request->query('priority'),
-            $request->query('search')
+            $request->query('search'),
+            $companyId
         );
 
         return response()->json([
@@ -43,7 +50,9 @@ class TaskController extends Controller
             'labels' => 'nullable|array',
         ]);
 
-        $task = $this->taskService->createTask($request->user(), $request->all());
+        $data = $request->all();
+        $data['company_id'] = $this->getCompanyId($request);
+        $task = $this->taskService->createTask($request->user(), $data);
 
         return response()->json([
             'status' => 'success',
