@@ -47,12 +47,15 @@ class CalendarService
                 'description' => $ev->description,
                 'start' => $ev->start_time->toIso8601String(),
                 'end' => $ev->end_time->toIso8601String(),
+                'start_time' => $ev->start_time->toIso8601String(),
+                'end_time' => $ev->end_time->toIso8601String(),
                 'startDate' => $ev->start_time->format('Y-m-d'),
                 'startTime' => $ev->start_time->format('H:i'),
                 'endDate' => $ev->end_time->format('Y-m-d'),
                 'endTime' => $ev->end_time->format('H:i'),
                 'timezone' => $ev->timezone,
                 'location' => $ev->location,
+                'meeting_link' => $ev->meeting_link,
                 'meetingLink' => $ev->meeting_link,
                 'color' => $ev->color ?: $this->getDefaultColorForCategory($ev->category),
                 'category' => $ev->category,
@@ -85,11 +88,14 @@ class CalendarService
     private function getDefaultColorForCategory(string $category): string
     {
         return match ($category) {
-            'meeting' => '#0F8B7A', // Teal
-            'task' => '#2563EB',    // Blue
-            'workflow' => '#7C3AED',// Purple
-            'schedule' => '#F59E0B',// Amber
-            'personal' => '#EC4899',// Pink
+            'meeting' => '#0F8B7A',  // Teal
+            'company_meeting' => '#0284C7', // Sky Blue
+            'festival' => '#EA580C', // Festive Orange
+            'holiday' => '#DC2626',  // Red
+            'task' => '#2563EB',     // Blue
+            'workflow', 'approval' => '#7C3AED', // Purple
+            'schedule' => '#F59E0B', // Amber
+            'personal' => '#EC4899', // Pink
             default => '#0F8B7A',
         };
     }
